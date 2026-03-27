@@ -1,7 +1,25 @@
 import { Injectable } from "@nestjs/common";
-import { ActivityType, OrderStatus, PaymentStatus, ShopSaleStatus, StockMovementType } from "@prisma/client";
 import { PrismaService } from "../../config/prisma.service";
 import { DashboardStatsQueryDto } from "./dto/dashboard-stats-query.dto";
+
+const PAYMENT_STATUS = {
+  PAYE: "PAYE",
+} as const;
+
+const SHOP_SALE_STATUS = {
+  VALIDEE: "VALIDEE",
+  PAYEE: "PAYEE",
+} as const;
+
+const ORDER_STATUS = {
+  BROUILLON: "BROUILLON",
+  EN_COURS: "EN_COURS",
+  SERVI: "SERVI",
+} as const;
+
+const STOCK_MOVEMENT_TYPE = {
+  SORTIE: "SORTIE",
+} as const;
 
 @Injectable()
 export class StatsService {
@@ -38,7 +56,7 @@ export class StatsService {
         where: {
           companyId,
           deletedAt: null,
-          statutPaiement: PaymentStatus.PAYE,
+          statutPaiement: PAYMENT_STATUS.PAYE,
           dateTransaction: {
             gte: from,
             lte: to,
@@ -62,14 +80,14 @@ export class StatsService {
         where: {
           companyId,
           createdAt: { gte: todayStart },
-          statut: { in: [ShopSaleStatus.VALIDEE, ShopSaleStatus.PAYEE] },
+          statut: { in: [SHOP_SALE_STATUS.VALIDEE, SHOP_SALE_STATUS.PAYEE] },
           ...(activityId ? { activityId } : {}),
         },
       }),
       this.prisma.restaurantOrder.count({
         where: {
           companyId,
-          statut: { in: [OrderStatus.BROUILLON, OrderStatus.EN_COURS, OrderStatus.SERVI] },
+          statut: { in: [ORDER_STATUS.BROUILLON, ORDER_STATUS.EN_COURS, ORDER_STATUS.SERVI] },
           ...(activityId ? { activityId } : {}),
         },
       }),
@@ -130,7 +148,7 @@ export class StatsService {
       }),
     ]);
 
-    const totalRevenue = transactions.reduce((sum, item) => sum + Number(item.montant), 0);
+    const totalRevenue = transactions.reduce((sum: number, item: { montant: unknown }) => sum + Number(item.montant), 0);
     const revenueByDayMap = new Map<string, { revenue: number; orders: number }>();
 
     for (let cursor = new Date(from); cursor <= to; cursor.setDate(cursor.getDate() + 1)) {
@@ -140,13 +158,13 @@ export class StatsService {
 
     const activityRevenueMap = new Map<
       string,
-      { activityName: string; activityType: ActivityType; revenue: number; sales: number; status: string }
+      { activityName: string; activityType: string; revenue: number; sales: number; status: string }
     >();
 
     for (const activity of activities) {
       activityRevenueMap.set(activity.id, {
         activityName: activity.nom,
-        activityType: activity.type as ActivityType,
+        activityType: String(activity.type),
         revenue: 0,
         sales: 0,
         status: activity.statut,
@@ -174,9 +192,9 @@ export class StatsService {
     }
 
     const lowStockAlerts = lowStockProducts
-      .filter((product) => product.stockActuel <= product.stockMinimum)
+      .filter((product: { stockActuel: number; stockMinimum: number }) => product.stockActuel <= product.stockMinimum)
       .slice(0, 6)
-      .map((product) => ({
+      .map((product: { id: string; nom: string; activity: { nom: string }; stockActuel: number; stockMinimum: number }) => ({
         id: product.id,
         productName: product.nom,
         activityName: product.activity.nom,
@@ -249,7 +267,7 @@ export class StatsService {
         status: values.status,
         lastActionAt: values.lastActionAt,
       })),
-      recentActivities: recentLogs.map((item) => ({
+      recentActivities: recentLogs.map((item: any) => ({
         id: item.id,
         userName: item.user ? `${item.user.prenom} ${item.user.nom}` : "Utilisateur",
         action: item.action,
@@ -302,7 +320,7 @@ export class StatsService {
             await this.prisma.stockMovement.count({
               where: {
                 companyId,
-                typeMouvement: StockMovementType.SORTIE,
+                typeMouvement: STOCK_MOVEMENT_TYPE.SORTIE,
                 ...(activityId ? { activityId } : {}),
               },
             }),

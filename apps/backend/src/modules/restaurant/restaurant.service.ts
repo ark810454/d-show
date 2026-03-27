@@ -3,17 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import {
-  ActivityType,
-  FinancialTransactionType,
-  MenuItemStatus,
-  OrderStatus,
-  PaymentMethod,
-  PaymentStatus,
-  Prisma,
-  ResourceStatus,
-  RestaurantOrderKitchenStatus,
-} from "@prisma/client";
 import { PrismaService } from "../../config/prisma.service";
 import { RealtimeGateway } from "../realtime/realtime.gateway";
 import { CreateMenuCategoryDto } from "./dto/create-menu-category.dto";
@@ -23,6 +12,45 @@ import { CreateRestaurantPaymentDto } from "./dto/create-payment.dto";
 import { CreateRestaurantTableDto } from "./dto/create-table.dto";
 import { RestaurantStatsQueryDto } from "./dto/restaurant-stats-query.dto";
 import { UpdateMenuItemDto } from "./dto/update-menu-item.dto";
+
+const ACTIVITY_TYPE = {
+  RESTAURANT: "RESTAURANT",
+} as const;
+
+const FINANCIAL_TRANSACTION_TYPE = {
+  VENTE: "VENTE",
+} as const;
+
+const MENU_ITEM_STATUS = {
+  DISPONIBLE: "DISPONIBLE",
+} as const;
+
+const ORDER_STATUS = {
+  EN_COURS: "EN_COURS",
+  SERVI: "SERVI",
+  PAYE: "PAYE",
+  ANNULE: "ANNULE",
+  BROUILLON: "BROUILLON",
+} as const;
+
+const PAYMENT_STATUS = {
+  PAYE: "PAYE",
+  PARTIEL: "PARTIEL",
+} as const;
+
+const RESOURCE_STATUS = {
+  LIBRE: "LIBRE",
+  OCCUPEE: "OCCUPEE",
+  EN_NETTOYAGE: "EN_NETTOYAGE",
+} as const;
+
+const RESTAURANT_KITCHEN_STATUS = {
+  EN_ATTENTE: "EN_ATTENTE",
+  EN_PREPARATION: "EN_PREPARATION",
+  PRET: "PRET",
+  SERVI: "SERVI",
+  ANNULE: "ANNULE",
+} as const;
 
 @Injectable()
 export class RestaurantService {
@@ -41,7 +69,7 @@ export class RestaurantService {
         code: dto.code,
         nom: dto.nom,
         capacite: dto.capacite,
-        statut: dto.statut ?? ResourceStatus.LIBRE,
+        statut: dto.statut ?? RESOURCE_STATUS.LIBRE,
       },
     });
   }
@@ -53,7 +81,7 @@ export class RestaurantService {
     });
   }
 
-  async updateTableStatus(id: string, companyId: string, activityId: string, statut: ResourceStatus) {
+  async updateTableStatus(id: string, companyId: string, activityId: string, statut: string) {
     const table = await this.prisma.restaurantTable.findFirst({
       where: { id, companyId, activityId, deletedAt: null },
     });
@@ -61,7 +89,7 @@ export class RestaurantService {
 
     const updated = await this.prisma.restaurantTable.update({
       where: { id },
-      data: { statut },
+      data: { statut: statut as any },
     });
 
     this.realtimeGateway.broadcastRestaurantTableUpdated(updated);
@@ -108,7 +136,7 @@ export class RestaurantService {
         prix: dto.prix,
         description: dto.description,
         image: dto.image,
-        statut: dto.statut ?? MenuItemStatus.DISPONIBLE,
+        statut: dto.statut ?? MENU_ITEM_STATUS.DISPONIBLE,
         options: dto.options?.length
           ? {
               create: dto.options.map((option) => ({
@@ -134,7 +162,7 @@ export class RestaurantService {
       throw new NotFoundException("Plat introuvable");
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       if (dto.options) {
         await tx.menuItemOption.deleteMany({
           where: { menuItemId: id },
@@ -178,7 +206,7 @@ export class RestaurantService {
     const reference = `R-${Date.now()}`;
     const kitchenCode = `KT-${Date.now()}`;
 
-    const order = await this.prisma.$transaction(async (tx) => {
+    const order = await this.prisma.$transaction(async (tx: any) => {
       const createdOrder = await tx.restaurantOrder.create({
         data: {
           companyId: dto.companyId,
@@ -187,8 +215,8 @@ export class RestaurantService {
           serverId: dto.serverId,
           tableId: dto.tableId,
           reference,
-          statut: OrderStatus.EN_COURS,
-          statutCuisine: RestaurantOrderKitchenStatus.EN_ATTENTE,
+          statut: ORDER_STATUS.EN_COURS,
+          statutCuisine: RESTAURANT_KITCHEN_STATUS.EN_ATTENTE,
           commentaire: dto.commentaire,
           notesCuisine: dto.notesCuisine,
           totalTtc: total,
@@ -218,14 +246,14 @@ export class RestaurantService {
           activityId: dto.activityId,
           restaurantOrderId: createdOrder.id,
           code: kitchenCode,
-          statut: RestaurantOrderKitchenStatus.EN_ATTENTE,
+          statut: RESTAURANT_KITCHEN_STATUS.EN_ATTENTE,
           note: dto.notesCuisine,
         },
       });
 
       await tx.restaurantTable.update({
         where: { id: dto.tableId },
-        data: { statut: ResourceStatus.OCCUPEE },
+        data: { statut: RESOURCE_STATUS.OCCUPEE },
       });
 
       return createdOrder;
@@ -244,7 +272,7 @@ export class RestaurantService {
       id: dto.tableId,
       companyId: dto.companyId,
       activityId: dto.activityId,
-      statut: ResourceStatus.OCCUPEE,
+        statut: RESOURCE_STATUS.OCCUPEE,
     });
 
     return order;
@@ -269,7 +297,7 @@ export class RestaurantService {
       where: {
         companyId,
         activityId,
-        statut: { in: [RestaurantOrderKitchenStatus.EN_ATTENTE, RestaurantOrderKitchenStatus.EN_PREPARATION, RestaurantOrderKitchenStatus.PRET] },
+        statut: { in: [RESTAURANT_KITCHEN_STATUS.EN_ATTENTE, RESTAURANT_KITCHEN_STATUS.EN_PREPARATION, RESTAURANT_KITCHEN_STATUS.PRET] },
       },
       include: {
         restaurantOrder: {
@@ -284,21 +312,21 @@ export class RestaurantService {
     });
   }
 
-  async updateKitchenStatus(id: string, companyId: string, activityId: string, statut: RestaurantOrderKitchenStatus, handledByUserId?: string) {
+  async updateKitchenStatus(id: string, companyId: string, activityId: string, statut: string, handledByUserId?: string) {
     const ticket = await this.prisma.kitchenTicket.findFirst({
       where: { id, companyId, activityId },
       include: { restaurantOrder: true },
     });
     if (!ticket) throw new NotFoundException("Ticket cuisine introuvable");
 
-    const updated = await this.prisma.$transaction(async (tx) => {
+    const updated = await this.prisma.$transaction(async (tx: any) => {
       const nextTicket = await tx.kitchenTicket.update({
         where: { id },
         data: {
           statut,
           handledByUserId,
-          readyAt: statut === RestaurantOrderKitchenStatus.PRET ? new Date() : undefined,
-          servedAt: statut === RestaurantOrderKitchenStatus.SERVI ? new Date() : undefined,
+          readyAt: statut === RESTAURANT_KITCHEN_STATUS.PRET ? new Date() : undefined,
+          servedAt: statut === RESTAURANT_KITCHEN_STATUS.SERVI ? new Date() : undefined,
         },
         include: {
           restaurantOrder: {
@@ -312,11 +340,11 @@ export class RestaurantService {
         data: {
           statutCuisine: statut,
           statut:
-            statut === RestaurantOrderKitchenStatus.SERVI
-              ? OrderStatus.SERVI
-              : statut === RestaurantOrderKitchenStatus.ANNULE
-                ? OrderStatus.ANNULE
-                : OrderStatus.EN_COURS,
+            statut === RESTAURANT_KITCHEN_STATUS.SERVI
+              ? ORDER_STATUS.SERVI
+              : statut === RESTAURANT_KITCHEN_STATUS.ANNULE
+                ? ORDER_STATUS.ANNULE
+                : ORDER_STATUS.EN_COURS,
         },
       });
 
@@ -324,7 +352,7 @@ export class RestaurantService {
     });
 
     this.realtimeGateway.broadcastKitchenStatusUpdated(updated);
-    if (statut === RestaurantOrderKitchenStatus.PRET) {
+    if (statut === RESTAURANT_KITCHEN_STATUS.PRET) {
       this.realtimeGateway.broadcastRestaurantDishReady({
         ticketId: updated.id,
         companyId,
@@ -346,11 +374,11 @@ export class RestaurantService {
     });
     if (!order) throw new NotFoundException("Commande introuvable");
 
-    const alreadyPaid = order.payments.reduce((sum, item) => sum + Number(item.montant), 0);
+    const alreadyPaid = order.payments.reduce((sum: number, item: { montant: unknown }) => sum + Number(item.montant), 0);
     const newPaid = alreadyPaid + dto.montant;
     const reference = `PAY-${Date.now()}`;
 
-    const payment = await this.prisma.$transaction(async (tx) => {
+    const payment = await this.prisma.$transaction(async (tx: any) => {
       const createdPayment = await tx.payment.create({
         data: {
           companyId: dto.companyId,
@@ -360,20 +388,20 @@ export class RestaurantService {
           reference,
           montant: dto.montant,
           modePaiement: dto.modePaiement,
-          statut: PaymentStatus.PAYE,
+          statut: PAYMENT_STATUS.PAYE,
           note: dto.note,
         },
       });
 
       const statutPaiement =
-        newPaid >= Number(order.totalTtc) ? PaymentStatus.PAYE : PaymentStatus.PARTIEL;
+        newPaid >= Number(order.totalTtc) ? PAYMENT_STATUS.PAYE : PAYMENT_STATUS.PARTIEL;
 
       await tx.restaurantOrder.update({
         where: { id: order.id },
         data: {
           statutPaiement,
           modePaiement: dto.modePaiement,
-          statut: statutPaiement === PaymentStatus.PAYE ? OrderStatus.PAYE : order.statut,
+          statut: statutPaiement === PAYMENT_STATUS.PAYE ? ORDER_STATUS.PAYE : order.statut,
         },
       });
 
@@ -384,18 +412,18 @@ export class RestaurantService {
           userId: dto.processedByUserId,
           restaurantOrderId: dto.restaurantOrderId,
           reference: `FIN-${reference}`,
-          typeTransaction: FinancialTransactionType.VENTE,
+          typeTransaction: FINANCIAL_TRANSACTION_TYPE.VENTE,
           modePaiement: dto.modePaiement,
-          statutPaiement: PaymentStatus.PAYE,
+          statutPaiement: PAYMENT_STATUS.PAYE,
           montant: dto.montant,
           description: "Encaissement restaurant",
         },
       });
 
-      if (statutPaiement === PaymentStatus.PAYE && order.tableId) {
+      if (statutPaiement === PAYMENT_STATUS.PAYE && order.tableId) {
         await tx.restaurantTable.update({
           where: { id: order.tableId },
-          data: { statut: ResourceStatus.EN_NETTOYAGE },
+          data: { statut: RESOURCE_STATUS.EN_NETTOYAGE },
         });
       }
 
@@ -408,7 +436,7 @@ export class RestaurantService {
         id: order.tableId,
         companyId: dto.companyId,
         activityId: dto.activityId,
-        statut: ResourceStatus.EN_NETTOYAGE,
+        statut: RESOURCE_STATUS.EN_NETTOYAGE,
       });
     }
 
@@ -437,7 +465,7 @@ export class RestaurantService {
       }),
     ]);
 
-    const revenue = orders.reduce((sum, order) => sum + Number(order.totalTtc), 0);
+    const revenue = orders.reduce((sum: number, order: { totalTtc: unknown }) => sum + Number(order.totalTtc), 0);
     const byItem = new Map<string, { label: string; qty: number }>();
     for (const item of items) {
       const current = byItem.get(item.libelle) ?? { label: item.libelle, qty: 0 };
@@ -446,11 +474,11 @@ export class RestaurantService {
     }
 
     const prepTimes = tickets
-      .filter((ticket) => ticket.readyAt)
-      .map((ticket) => new Date(ticket.readyAt!).getTime() - new Date(ticket.sentAt).getTime());
+      .filter((ticket: { readyAt: Date | null }) => ticket.readyAt)
+      .map((ticket: { readyAt: Date | null; sentAt: Date }) => new Date(ticket.readyAt!).getTime() - new Date(ticket.sentAt).getTime());
 
     const averagePreparationMinutes = prepTimes.length
-      ? Math.round(prepTimes.reduce((sum, value) => sum + value, 0) / prepTimes.length / 60000)
+      ? Math.round(prepTimes.reduce((sum: number, value: number) => sum + value, 0) / prepTimes.length / 60000)
       : 0;
 
     return {
@@ -461,17 +489,17 @@ export class RestaurantService {
         .sort((a, b) => b.qty - a.qty)
         .slice(0, 8),
       statuses: {
-        pending: orders.filter((order) => order.statutCuisine === RestaurantOrderKitchenStatus.EN_ATTENTE).length,
-        preparing: orders.filter((order) => order.statutCuisine === RestaurantOrderKitchenStatus.EN_PREPARATION).length,
-        ready: orders.filter((order) => order.statutCuisine === RestaurantOrderKitchenStatus.PRET).length,
-        served: orders.filter((order) => order.statutCuisine === RestaurantOrderKitchenStatus.SERVI).length,
+        pending: orders.filter((order: { statutCuisine: string }) => order.statutCuisine === RESTAURANT_KITCHEN_STATUS.EN_ATTENTE).length,
+        preparing: orders.filter((order: { statutCuisine: string }) => order.statutCuisine === RESTAURANT_KITCHEN_STATUS.EN_PREPARATION).length,
+        ready: orders.filter((order: { statutCuisine: string }) => order.statutCuisine === RESTAURANT_KITCHEN_STATUS.PRET).length,
+        served: orders.filter((order: { statutCuisine: string }) => order.statutCuisine === RESTAURANT_KITCHEN_STATUS.SERVI).length,
       },
     };
   }
 
   private async ensureRestaurantActivity(companyId: string, activityId: string) {
     const activity = await this.prisma.activity.findFirst({
-      where: { id: activityId, companyId, type: ActivityType.RESTAURANT, deletedAt: null },
+      where: { id: activityId, companyId, type: ACTIVITY_TYPE.RESTAURANT, deletedAt: null },
     });
     if (!activity) {
       throw new BadRequestException("Cette activite n'est pas un restaurant valide");

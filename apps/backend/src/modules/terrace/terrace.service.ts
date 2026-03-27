@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { ActivityType } from "@prisma/client";
 import { PrismaService } from "../../config/prisma.service";
 import { RealtimeGateway } from "../realtime/realtime.gateway";
 import { CreateHappyHourDto } from "./dto/create-happy-hour.dto";
@@ -30,6 +29,10 @@ const TERRACE_ORDER_STATUS = {
 
 const FINANCIAL_TRANSACTION_TYPE = {
   VENTE: "VENTE",
+} as const;
+
+const ACTIVITY_TYPE = {
+  TERRASSE: "TERRASSE",
 } as const;
 
 type HappyHourMatch = {
@@ -326,7 +329,7 @@ export class TerraceService {
 
   private async ensureTerraceActivity(companyId: string, activityId: string) {
     const activity = await this.prisma.activity.findFirst({
-      where: { id: activityId, companyId, type: ActivityType.TERRASSE, deletedAt: null },
+      where: { id: activityId, companyId, type: ACTIVITY_TYPE.TERRASSE, deletedAt: null },
     });
     if (!activity) throw new BadRequestException("Cette activite n'est pas une terrasse valide");
     return activity;

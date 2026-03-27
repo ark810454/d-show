@@ -1,13 +1,4 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import {
-  ActivityType,
-  FinancialTransactionType,
-  PaymentStatus,
-  Prisma,
-  ShopProductStatus,
-  ShopSaleStatus,
-  StockMovementType,
-} from "@prisma/client";
 import { PrismaService } from "../../config/prisma.service";
 import { RealtimeGateway } from "../realtime/realtime.gateway";
 import { CreateShopCategoryDto } from "./dto/create-shop-category.dto";
@@ -15,6 +6,30 @@ import { CreateShopProductDto } from "./dto/create-shop-product.dto";
 import { CreateShopPromotionDto } from "./dto/create-shop-promotion.dto";
 import { CreateShopSaleDto } from "./dto/create-shop-sale.dto";
 import { UpdateShopProductDto } from "./dto/update-shop-product.dto";
+
+const ACTIVITY_TYPE = {
+  SHOP: "SHOP",
+} as const;
+
+const FINANCIAL_TRANSACTION_TYPE = {
+  VENTE: "VENTE",
+} as const;
+
+const PAYMENT_STATUS = {
+  PAYE: "PAYE",
+} as const;
+
+const SHOP_PRODUCT_STATUS = {
+  ACTIVE: "ACTIVE",
+} as const;
+
+const SHOP_SALE_STATUS = {
+  PAYEE: "PAYEE",
+} as const;
+
+const STOCK_MOVEMENT_TYPE = {
+  SORTIE: "SORTIE",
+} as const;
 
 @Injectable()
 export class ShopService {
@@ -35,7 +50,7 @@ export class ShopService {
         },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      if (typeof error === "object" && error !== null && "code" in error && (error as { code?: string }).code === "P2002") {
         throw new BadRequestException("Une categorie portant ce nom existe deja dans cette boutique.");
       }
       throw error;
@@ -69,12 +84,12 @@ export class ShopService {
           prixAchat: dto.prixAchat,
           stockActuel: dto.stockActuel,
           stockMinimum: dto.stockMinimum,
-          statut: dto.statut ?? ShopProductStatus.ACTIVE,
+          statut: dto.statut ?? SHOP_PRODUCT_STATUS.ACTIVE,
         },
         include: { categorie: true, promotions: true },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      if (typeof error === "object" && error !== null && "code" in error && (error as { code?: string }).code === "P2002") {
         throw new BadRequestException(
           "Le SKU ou le code-barres existe deja pour cette boutique. Utilisez une reference unique.",
         );
@@ -161,8 +176,8 @@ export class ShopService {
 
     const now = new Date();
     const lines = dto.items.map((item) => {
-      const product = products.find((entry) => entry.id === item.productId);
-      const promo = product?.promotions.find((entry) => entry.dateDebut <= now && entry.dateFin >= now);
+      const product = products.find((entry: { id?: string }) => entry.id === item.productId);
+      const promo = product?.promotions.find((entry: { dateDebut: Date; dateFin: Date }) => entry.dateDebut <= now && entry.dateFin >= now);
       let prixUnitaire = item.prixUnitaire;
       if (promo) {
         prixUnitaire =
@@ -179,7 +194,7 @@ export class ShopService {
 
     for (const line of lines) {
       if (!line.productId) continue;
-      const product = products.find((entry) => entry.id === line.productId);
+      const product = products.find((entry: { id?: string }) => entry.id === line.productId);
       if (!product) throw new NotFoundException("Produit du panier introuvable");
       if (product.stockActuel < line.quantite) {
         throw new BadRequestException(`Stock insuffisant pour ${product.nom}`);
@@ -189,7 +204,7 @@ export class ShopService {
     const totalHt = lines.reduce((sum, item) => sum + item.totalLigne, 0);
     const totalTtc = Math.max(0, totalHt - dto.remise + dto.taxeMontant);
 
-    const sale = await this.prisma.$transaction(async (tx) => {
+    const sale = await this.prisma.$transaction(async (tx: any) => {
       const created = await tx.shopSale.create({
         data: {
           companyId: dto.companyId,
@@ -197,8 +212,8 @@ export class ShopService {
           clientId: dto.clientId,
           sellerId: dto.sellerId,
           reference: `SHOP-${Date.now()}`,
-          statut: ShopSaleStatus.PAYEE,
-          statutPaiement: PaymentStatus.PAYE,
+          statut: SHOP_SALE_STATUS.PAYEE,
+          statutPaiement: PAYMENT_STATUS.PAYE,
           modePaiement: dto.modePaiement,
           totalHt,
           taxeMontant: dto.taxeMontant,
@@ -222,7 +237,7 @@ export class ShopService {
 
       for (const line of lines) {
         if (!line.productId) continue;
-        const product = products.find((entry) => entry.id === line.productId)!;
+        const product = products.find((entry: { id?: string }) => entry.id === line.productId)!;
         await tx.shopProduct.update({
           where: { id: product.id },
           data: { stockActuel: { decrement: line.quantite } },
@@ -233,7 +248,7 @@ export class ShopService {
             activityId: dto.activityId,
             productId: product.id,
             userId: dto.sellerId,
-            typeMouvement: StockMovementType.SORTIE,
+            typeMouvement: STOCK_MOVEMENT_TYPE.SORTIE,
             quantite: line.quantite,
             coutUnitaire: product.prixAchat,
             reference: created.reference,
@@ -250,9 +265,9 @@ export class ShopService {
           clientId: dto.clientId,
           shopSaleId: created.id,
           reference: `FIN-${created.reference}`,
-          typeTransaction: FinancialTransactionType.VENTE,
+          typeTransaction: FINANCIAL_TRANSACTION_TYPE.VENTE,
           modePaiement: dto.modePaiement,
-          statutPaiement: PaymentStatus.PAYE,
+          statutPaiement: PAYMENT_STATUS.PAYE,
           montant: totalTtc,
           description: "Encaissement boutique",
         },
@@ -280,11 +295,13 @@ export class ShopService {
         companyId,
         activityId,
         deletedAt: null,
-        statut: ShopProductStatus.ACTIVE,
+        statut: SHOP_PRODUCT_STATUS.ACTIVE,
       },
       include: { categorie: true },
       orderBy: { stockActuel: "asc" },
-    }).then((items) => items.filter((item) => item.stockActuel <= item.stockMinimum));
+    }).then((items: Array<{ stockActuel: number; stockMinimum: number }>) =>
+      items.filter((item: { stockActuel: number; stockMinimum: number }) => item.stockActuel <= item.stockMinimum),
+    );
   }
 
   stockMovements(companyId: string, activityId: string) {
@@ -321,14 +338,14 @@ export class ShopService {
       dailySales.set(day, (dailySales.get(day) ?? 0) + Number(sale.totalTtc));
       for (const item of sale.items) {
         productSales.set(item.libelle, (productSales.get(item.libelle) ?? 0) + item.quantite);
-        const product = products.find((entry) => entry.id === item.productId);
+        const product = products.find((entry: { id?: string }) => entry.id === item.productId);
         const purchase = Number(product?.prixAchat ?? 0);
         estimatedMargin += Number(item.totalLigne) - purchase * item.quantite;
       }
     }
 
     return {
-      revenue: sales.reduce((sum, sale) => sum + Number(sale.totalTtc), 0),
+      revenue: sales.reduce((sum: number, sale: { totalTtc: unknown }) => sum + Number(sale.totalTtc), 0),
       salesCount: sales.length,
       estimatedMargin,
       bestProducts: Array.from(productSales.entries())
@@ -336,7 +353,7 @@ export class ShopService {
         .sort((a, b) => b.qty - a.qty)
         .slice(0, 10),
       dailySales: Array.from(dailySales.entries()).map(([date, amount]) => ({ date, amount })),
-      stockEvolution: movements.slice(-20).map((movement) => ({
+      stockEvolution: movements.slice(-20).map((movement: { product: { nom: string }; quantite: number; typeMouvement: string; occuredAt: Date }) => ({
         label: movement.product.nom,
         quantity: movement.quantite,
         type: movement.typeMouvement,
@@ -347,7 +364,7 @@ export class ShopService {
 
   private async ensureShopActivity(companyId: string, activityId: string) {
     const activity = await this.prisma.activity.findFirst({
-      where: { id: activityId, companyId, type: ActivityType.SHOP, deletedAt: null },
+      where: { id: activityId, companyId, type: ACTIVITY_TYPE.SHOP, deletedAt: null },
     });
     if (!activity) throw new BadRequestException("Cette activité n'est pas une boutique valide");
     return activity;
