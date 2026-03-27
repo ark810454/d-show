@@ -156,7 +156,7 @@ export class TerraceService {
     const totalNet = totalBrut - reduction;
     const reference = `TERR-${Date.now()}`;
 
-    const order = await this.prisma.$transaction(async (tx) => {
+    const order = await this.prisma.$transaction(async (tx: any) => {
       const created = await tx.terraceOrder.create({
         data: {
           companyId: dto.companyId,
@@ -237,7 +237,7 @@ export class TerraceService {
 
     const alreadyPaid = order.payments.reduce((sum: number, item: { montant: unknown }) => sum + Number(item.montant), 0);
     const after = alreadyPaid + dto.montant;
-    const payment = await this.prisma.$transaction(async (tx) => {
+    const payment = await this.prisma.$transaction(async (tx: any) => {
       const created = await tx.terracePayment.create({
         data: {
           companyId: dto.companyId,
