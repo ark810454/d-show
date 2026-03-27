@@ -15,6 +15,10 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 @Injectable()
 export class UsersService {
   private readonly superUserOnlyRoles = new Set(["super_admin", "admin_entreprise"]);
+  private readonly roleIdentity = {
+    id: "",
+    nom: "",
+  };
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -540,7 +544,7 @@ export class UsersService {
       ),
     );
 
-    const protectedRole = roles.find((role) => this.superUserOnlyRoles.has(role.nom));
+    const protectedRole = roles.find((role: typeof this.roleIdentity) => this.superUserOnlyRoles.has(role.nom));
     if (protectedRole && !isSuperAdmin) {
       throw new ForbiddenException(
         "Les roles admin_entreprise et super_admin sont reserves au super utilisateur admin@dshow.app.",
