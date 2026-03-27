@@ -577,5 +577,5 @@ export class UsersService {
         activity: true,
       },
     },
-  } satisfies Prisma.UserInclude;
+  } as const;
 }
