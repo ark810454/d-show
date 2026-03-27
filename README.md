@@ -2,6 +2,8 @@
 
 Plateforme web professionnelle de gestion multi-activites pour un complexe commercial compose d'un restaurant, d'une terrasse, d'une boite de nuit, d'une boutique et d'une cordonnerie extensible.
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ark810454/d-show)
+
 ## Stack retenue
 
 - Frontend: Next.js 14, React 18, TypeScript, App Router, Tailwind CSS, Zustand, Axios
