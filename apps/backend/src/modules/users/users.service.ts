@@ -427,13 +427,16 @@ export class UsersService {
       }),
     ]);
 
-    const clockInCount = timeLogs.filter((item) => item.action === "CLOCK_IN").length;
-    const clockOutCount = timeLogs.filter((item) => item.action === "CLOCK_OUT").length;
-    const restaurantRevenue = restaurantOrders.reduce((sum, item) => sum + Number(item.totalTtc), 0);
-    const shopRevenue = shopSales.reduce((sum, item) => sum + Number(item.totalTtc), 0);
+    const clockInCount = timeLogs.filter((item: { action: string }) => item.action === "CLOCK_IN").length;
+    const clockOutCount = timeLogs.filter((item: { action: string }) => item.action === "CLOCK_OUT").length;
+    const restaurantRevenue = restaurantOrders.reduce(
+      (sum: number, item: { totalTtc: unknown }) => sum + Number(item.totalTtc),
+      0,
+    );
+    const shopRevenue = shopSales.reduce((sum: number, item: { totalTtc: unknown }) => sum + Number(item.totalTtc), 0);
     const collectedRevenue = financialTransactions
-      .filter((item) => item.statutPaiement === PAYMENT_STATUS.PAYE)
-      .reduce((sum, item) => sum + Number(item.montant), 0);
+      .filter((item: { statutPaiement: string }) => item.statutPaiement === PAYMENT_STATUS.PAYE)
+      .reduce((sum: number, item: { montant: unknown }) => sum + Number(item.montant), 0);
 
     return {
       user: {
