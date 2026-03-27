@@ -128,7 +128,7 @@ export class UsersService {
 
     const passwordHash = await bcrypt.hash(dto.motDePasse, 10);
 
-    const created = await this.prisma.$transaction(async (tx) => {
+    const created = await this.prisma.$transaction(async (tx: any) => {
       const user = await tx.user.create({
         data: {
           companyId: dto.companyId,
@@ -193,7 +193,7 @@ export class UsersService {
       data.motDePasseHash = await bcrypt.hash(dto.motDePasse, 10);
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       const user = await tx.user.update({
         where: { id: existing.id },
         data: data as any,
@@ -247,7 +247,7 @@ export class UsersService {
     const targetCompanyId = this.resolveActorCompanyContext(companyId, actor);
     const user = await this.findOne(id, targetCompanyId);
 
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       const updated = await tx.user.update({
         where: { id: user.id },
         data: {
@@ -279,7 +279,7 @@ export class UsersService {
       throw new BadRequestException("Vous ne pouvez pas supprimer votre propre compte");
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       await tx.userRoleActivity.deleteMany({
         where: { userId: user.id },
       });
@@ -320,7 +320,7 @@ export class UsersService {
     const user = await this.findOne(userId, targetCompanyId);
     await this.validateAssignments(user.companyId, assignments, actor);
 
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: any) => {
       await tx.userRoleActivity.deleteMany({
         where: { userId: user.id },
       });
