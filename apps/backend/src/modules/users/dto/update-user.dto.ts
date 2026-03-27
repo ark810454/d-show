@@ -1,5 +1,7 @@
-import { UserStatus } from "@prisma/client";
-import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from "class-validator";
+import { IsEmail, IsIn, IsOptional, IsString, MinLength } from "class-validator";
+
+const USER_STATUSES = ["ACTIVE", "INACTIVE", "SUSPENDED"] as const;
+type UserStatusValue = (typeof USER_STATUSES)[number];
 
 export class UpdateUserDto {
   @IsOptional()
@@ -30,7 +32,6 @@ export class UpdateUserDto {
   photo?: string;
 
   @IsOptional()
-  @IsEnum(UserStatus)
-  statut?: UserStatus;
+  @IsIn(USER_STATUSES)
+  statut?: UserStatusValue;
 }
-

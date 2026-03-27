@@ -4,13 +4,31 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PaymentStatus, Prisma, UserStatus } from "@prisma/client";
-import * as bcrypt from "bcryptjs";
 import { PrismaService } from "../../config/prisma.service";
+import * as bcrypt from "bcryptjs";
 import { AssignRoleActivityItemDto } from "./dto/assign-roles.dto";
 import { ClockingDto } from "./dto/clocking.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
+
+const USER_STATUS = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+} as const;
+
+const PAYMENT_STATUS = {
+  PAYE: "PAYE",
+} as const;
+
+type UserUpdateShape = {
+  nom?: string;
+  prenom?: string;
+  email?: string;
+  telephone?: string;
+  photo?: string;
+  statut?: unknown;
+  motDePasseHash?: string;
+};
 
 @Injectable()
 export class UsersService {
@@ -27,7 +45,7 @@ export class UsersService {
       where: {
         email,
         deletedAt: null,
-        statut: UserStatus.ACTIVE,
+        statut: USER_STATUS.ACTIVE,
       },
       include: this.userInclude,
     });
@@ -38,7 +56,7 @@ export class UsersService {
       where: {
         email,
         deletedAt: null,
-        statut: UserStatus.ACTIVE,
+        statut: USER_STATUS.ACTIVE,
       },
       include: this.userInclude,
       orderBy: [{ createdAt: "desc" }],
@@ -120,7 +138,7 @@ export class UsersService {
           telephone: dto.telephone,
           motDePasseHash: passwordHash,
           photo: dto.photo,
-          statut: dto.statut ?? UserStatus.ACTIVE,
+          statut: dto.statut ?? USER_STATUS.ACTIVE,
         },
         include: this.userInclude,
       });
@@ -162,7 +180,7 @@ export class UsersService {
       await this.ensureEmailAvailable(dto.email, existing.id);
     }
 
-    const data: Prisma.UserUpdateInput = {
+    const data: UserUpdateShape = {
       nom: dto.nom,
       prenom: dto.prenom,
       email: dto.email,
@@ -178,7 +196,7 @@ export class UsersService {
     return this.prisma.$transaction(async (tx) => {
       const user = await tx.user.update({
         where: { id: existing.id },
-        data,
+        data: data as any,
         include: this.userInclude,
       });
 
@@ -206,7 +224,7 @@ export class UsersService {
       await this.ensureEmailAvailable(dto.email, user.id);
     }
 
-    const data: Prisma.UserUpdateInput = {
+    const data: UserUpdateShape = {
       nom: dto.nom,
       prenom: dto.prenom,
       email: dto.email,
@@ -220,7 +238,7 @@ export class UsersService {
 
     return this.prisma.user.update({
       where: { id: userId },
-      data,
+      data: data as any,
       include: this.userInclude,
     });
   }
@@ -233,7 +251,7 @@ export class UsersService {
       const updated = await tx.user.update({
         where: { id: user.id },
         data: {
-          statut: UserStatus.INACTIVE,
+          statut: USER_STATUS.INACTIVE,
         },
         include: this.userInclude,
       });
@@ -269,7 +287,7 @@ export class UsersService {
       const updated = await tx.user.update({
         where: { id: user.id },
         data: {
-          statut: UserStatus.INACTIVE,
+          statut: USER_STATUS.INACTIVE,
           deletedAt: new Date(),
           refreshTokenHash: null,
         },
@@ -414,7 +432,7 @@ export class UsersService {
     const restaurantRevenue = restaurantOrders.reduce((sum, item) => sum + Number(item.totalTtc), 0);
     const shopRevenue = shopSales.reduce((sum, item) => sum + Number(item.totalTtc), 0);
     const collectedRevenue = financialTransactions
-      .filter((item) => item.statutPaiement === PaymentStatus.PAYE)
+      .filter((item) => item.statutPaiement === PAYMENT_STATUS.PAYE)
       .reduce((sum, item) => sum + Number(item.montant), 0);
 
     return {
@@ -449,7 +467,7 @@ export class UsersService {
 
   private ensureSameCompany(targetCompanyId: string, actor: { companyId?: string; assignments?: Array<{ role?: { nom?: string } }> }) {
     const isSuperAdmin = Boolean(
-      actor?.assignments?.some((assignment) => assignment.role?.nom === "super_admin"),
+      actor?.assignments?.some((assignment: { role?: { nom?: string } }) => assignment.role?.nom === "super_admin"),
     );
 
     if (!isSuperAdmin && targetCompanyId !== actor.companyId) {
@@ -462,7 +480,7 @@ export class UsersService {
     actor: { companyId?: string; assignments?: Array<{ role?: { nom?: string } }> },
   ): string {
     const isSuperAdmin = Boolean(
-      actor?.assignments?.some((assignment) => assignment.role?.nom === "super_admin"),
+      actor?.assignments?.some((assignment: { role?: { nom?: string } }) => assignment.role?.nom === "super_admin"),
     );
 
     const resolvedCompanyId = isSuperAdmin ? companyId : actor.companyId;
@@ -536,10 +554,10 @@ export class UsersService {
     }
 
     const isSuperAdmin = Boolean(
-      actor?.assignments?.some((assignment) => assignment.role?.nom === "super_admin"),
+      actor?.assignments?.some((assignment: { role?: { nom?: string } }) => assignment.role?.nom === "super_admin"),
     );
     const isGlobalAdmin = Boolean(
-      actor?.assignments?.some((assignment) =>
+      actor?.assignments?.some((assignment: { role?: { nom?: string } }) =>
         ["super_admin", "admin_entreprise"].includes(assignment.role?.nom ?? ""),
       ),
     );
@@ -556,7 +574,7 @@ export class UsersService {
     }
 
     const allowedActivityIds = new Set(
-      actor?.assignments?.map((assignment) => assignment.activityId).filter(Boolean) ?? [],
+      actor?.assignments?.map((assignment: { activityId?: string }) => assignment.activityId).filter(Boolean) ?? [],
     );
 
     const forbiddenAssignment = assignments.find((assignment) => !allowedActivityIds.has(assignment.activityId));

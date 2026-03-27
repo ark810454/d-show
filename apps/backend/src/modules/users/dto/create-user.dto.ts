@@ -1,14 +1,16 @@
-import { UserStatus } from "@prisma/client";
 import {
   IsArray,
   IsEmail,
-  IsEnum,
+  IsIn,
   IsOptional,
   IsString,
   MinLength,
   ValidateNested,
 } from "class-validator";
 import { Type } from "class-transformer";
+
+const USER_STATUSES = ["ACTIVE", "INACTIVE", "SUSPENDED"] as const;
+type UserStatusValue = (typeof USER_STATUSES)[number];
 
 export class UserActivityRoleAssignmentDto {
   @IsString()
@@ -46,12 +48,11 @@ export class CreateUserDto {
   photo?: string;
 
   @IsOptional()
-  @IsEnum(UserStatus)
-  statut?: UserStatus;
+  @IsIn(USER_STATUSES)
+  statut?: UserStatusValue;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UserActivityRoleAssignmentDto)
   assignments!: UserActivityRoleAssignmentDto[];
 }
-

@@ -1,13 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import {
-  ActivityType,
-  FinancialTransactionType,
-  MenuItemStatus,
-  PaymentStatus,
-  Prisma,
-  ResourceStatus,
-  TerraceOrderStatus,
-} from "@prisma/client";
+import { ActivityType } from "@prisma/client";
 import { PrismaService } from "../../config/prisma.service";
 import { RealtimeGateway } from "../realtime/realtime.gateway";
 import { CreateHappyHourDto } from "./dto/create-happy-hour.dto";
@@ -16,6 +8,35 @@ import { CreateTerraceItemDto } from "./dto/create-terrace-item.dto";
 import { CreateTerraceOrderDto } from "./dto/create-terrace-order.dto";
 import { CreateTerracePaymentDto } from "./dto/create-terrace-payment.dto";
 import { CreateTerraceTableDto } from "./dto/create-terrace-table.dto";
+
+const RESOURCE_STATUS = {
+  LIBRE: "LIBRE",
+  OCCUPEE: "OCCUPEE",
+} as const;
+
+const MENU_ITEM_STATUS = {
+  DISPONIBLE: "DISPONIBLE",
+} as const;
+
+const PAYMENT_STATUS = {
+  PAYE: "PAYE",
+  PARTIEL: "PARTIEL",
+} as const;
+
+const TERRACE_ORDER_STATUS = {
+  EN_ATTENTE: "EN_ATTENTE",
+  SERVI: "SERVI",
+} as const;
+
+const FINANCIAL_TRANSACTION_TYPE = {
+  VENTE: "VENTE",
+} as const;
+
+type HappyHourMatch = {
+  nom: string;
+  reductionPct: unknown;
+  joursSemaine: string;
+};
 
 @Injectable()
 export class TerraceService {
@@ -34,7 +55,7 @@ export class TerraceService {
         nom: dto.nom,
         emplacement: dto.emplacement,
         capacite: dto.capacite,
-        statut: dto.statut ?? ResourceStatus.LIBRE,
+        statut: dto.statut ?? RESOURCE_STATUS.LIBRE,
       },
     });
   }
@@ -46,12 +67,12 @@ export class TerraceService {
     });
   }
 
-  async updateTableStatus(id: string, companyId: string, activityId: string, statut: ResourceStatus) {
+  async updateTableStatus(id: string, companyId: string, activityId: string, statut: string) {
     const table = await this.prisma.terraceTable.findFirst({
       where: { id, companyId, activityId, deletedAt: null },
     });
     if (!table) throw new NotFoundException("Zone terrasse introuvable");
-    const updated = await this.prisma.terraceTable.update({ where: { id }, data: { statut } });
+    const updated = await this.prisma.terraceTable.update({ where: { id }, data: { statut: statut as never } });
     this.realtimeGateway.broadcastTerraceTableUpdated(updated);
     return updated;
   }
@@ -68,10 +89,7 @@ export class TerraceService {
         },
       });
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
+      if (typeof error === "object" && error !== null && "code" in error && (error as { code?: string }).code === "P2002") {
         throw new BadRequestException("Une categorie portant ce nom existe deja pour cette terrasse.");
       }
       throw error;
@@ -89,7 +107,7 @@ export class TerraceService {
         prix: dto.prix,
         description: dto.description,
         boissonUniquement: dto.boissonUniquement ?? true,
-        statut: MenuItemStatus.DISPONIBLE,
+        statut: MENU_ITEM_STATUS.DISPONIBLE,
       },
     });
   }
@@ -147,7 +165,7 @@ export class TerraceService {
           serverId: dto.serverId,
           terraceTableId: dto.terraceTableId,
           reference,
-          statut: TerraceOrderStatus.EN_ATTENTE,
+          statut: TERRACE_ORDER_STATUS.EN_ATTENTE,
           totalBrut,
           reductionMontant: reduction,
           totalNet,
@@ -172,20 +190,20 @@ export class TerraceService {
       if (dto.terraceTableId) {
         await tx.terraceTable.update({
           where: { id: dto.terraceTableId },
-          data: { statut: ResourceStatus.OCCUPEE },
+          data: { statut: RESOURCE_STATUS.OCCUPEE },
         });
       }
 
       return created;
     });
 
-    this.realtimeGateway.broadcastTerraceOrderCreated(order);
+    this.realtimeGateway.broadcastTerraceOrderCreated(order as any);
     if (dto.terraceTableId) {
       this.realtimeGateway.broadcastTerraceTableUpdated({
         id: dto.terraceTableId,
         companyId: dto.companyId,
         activityId: dto.activityId,
-        statut: ResourceStatus.OCCUPEE,
+        statut: RESOURCE_STATUS.OCCUPEE,
       });
     }
     return order;
@@ -199,12 +217,12 @@ export class TerraceService {
     });
   }
 
-  async updateOrderStatus(id: string, companyId: string, activityId: string, statut: TerraceOrderStatus) {
+  async updateOrderStatus(id: string, companyId: string, activityId: string, statut: string) {
     const order = await this.prisma.terraceOrder.findFirst({
       where: { id, companyId, activityId, deletedAt: null },
     });
     if (!order) throw new NotFoundException("Commande terrasse introuvable");
-    const updated = await this.prisma.terraceOrder.update({ where: { id }, data: { statut } });
+    const updated = await this.prisma.terraceOrder.update({ where: { id }, data: { statut: statut as never } });
     this.realtimeGateway.broadcastTerraceOrderStatusUpdated(updated);
     return updated;
   }
@@ -217,7 +235,7 @@ export class TerraceService {
     });
     if (!order) throw new NotFoundException("Ticket terrasse introuvable");
 
-    const alreadyPaid = order.payments.reduce((sum, item) => sum + Number(item.montant), 0);
+    const alreadyPaid = order.payments.reduce((sum: number, item: { montant: unknown }) => sum + Number(item.montant), 0);
     const after = alreadyPaid + dto.montant;
     const payment = await this.prisma.$transaction(async (tx) => {
       const created = await tx.terracePayment.create({
@@ -232,13 +250,13 @@ export class TerraceService {
         },
       });
 
-      const statutPaiement = after >= Number(order.totalNet) ? PaymentStatus.PAYE : PaymentStatus.PARTIEL;
+      const statutPaiement = after >= Number(order.totalNet) ? PAYMENT_STATUS.PAYE : PAYMENT_STATUS.PARTIEL;
       await tx.terraceOrder.update({
         where: { id: order.id },
         data: {
           statutPaiement,
           modePaiement: dto.modePaiement,
-          statut: statutPaiement === PaymentStatus.PAYE ? TerraceOrderStatus.SERVI : order.statut,
+          statut: statutPaiement === PAYMENT_STATUS.PAYE ? TERRACE_ORDER_STATUS.SERVI : order.statut,
         },
       });
 
@@ -248,30 +266,30 @@ export class TerraceService {
           activityId: dto.activityId,
           userId: dto.processedByUserId,
           reference: `FIN-TPAY-${Date.now()}`,
-          typeTransaction: FinancialTransactionType.VENTE,
+          typeTransaction: FINANCIAL_TRANSACTION_TYPE.VENTE,
           modePaiement: dto.modePaiement,
-          statutPaiement: PaymentStatus.PAYE,
+          statutPaiement: PAYMENT_STATUS.PAYE,
           montant: dto.montant,
           description: "Encaissement terrasse",
         },
       });
 
-      if (order.terraceTableId && statutPaiement === PaymentStatus.PAYE) {
+      if (order.terraceTableId && statutPaiement === PAYMENT_STATUS.PAYE) {
         await tx.terraceTable.update({
           where: { id: order.terraceTableId },
-          data: { statut: ResourceStatus.LIBRE },
+          data: { statut: RESOURCE_STATUS.LIBRE },
         });
       }
       return created;
     });
 
-    this.realtimeGateway.broadcastTerracePaymentCreated(payment);
+    this.realtimeGateway.broadcastTerracePaymentCreated(payment as any);
     if (order.terraceTableId && after >= Number(order.totalNet)) {
       this.realtimeGateway.broadcastTerraceTableUpdated({
         id: order.terraceTableId,
         companyId: dto.companyId,
         activityId: dto.activityId,
-        statut: ResourceStatus.LIBRE,
+        statut: RESOURCE_STATUS.LIBRE,
       });
     }
     return payment;
@@ -298,7 +316,7 @@ export class TerraceService {
     }
 
     return {
-      revenue: orders.reduce((sum, order) => sum + Number(order.totalNet), 0),
+      revenue: orders.reduce((sum: number, order: { totalNet: unknown }) => sum + Number(order.totalNet), 0),
       totalOrders: orders.length,
       impactHappyHour: happyHourRevenue,
       topDrinks: Array.from(byDrink.entries()).map(([label, qty]) => ({ label, qty })).sort((a, b) => b.qty - a.qty).slice(0, 8),
@@ -327,9 +345,9 @@ export class TerraceService {
         endTime: { gte: hhmm },
       },
       orderBy: { reductionPct: "desc" },
-    }).then((rule) => {
+    }).then((rule: HappyHourMatch | null) => {
       if (!rule) return null;
-      const days = rule.joursSemaine.split(",").map((v) => Number(v.trim()));
+      const days = rule.joursSemaine.split(",").map((v: string) => Number(v.trim()));
       return days.includes(jsDay) ? rule : null;
     });
   }
