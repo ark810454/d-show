@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DShow.PosMobile.Pages.CompanySelectionPage"
+             Title="Entreprise">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        <VerticalStackLayout Spacing="6">
+            <Label Text="Selection entreprise" FontSize="26" FontAttributes="Bold" />
+            <Label x:Name="UserLabel" TextColor="#64748b" />
+        </VerticalStackLayout>
+
+        <CollectionView x:Name="CompaniesView" Grid.Row="1" SelectionChanged="OnCompanySelected" Margin="0,20,0,20">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="16" Margin="0,0,0,12" BorderColor="#cbd5e1" CornerRadius="16">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Nom}" FontAttributes="Bold" FontSize="18" />
+                            <Label Text="{Binding Adresse}" TextColor="#64748b" />
+                            <Label Text="{Binding Telephone}" TextColor="#64748b" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <HorizontalStackLayout Grid.Row="2" Spacing="12">
+            <Button Text="Rafraichir" Clicked="OnRefreshClicked" />
+            <Button Text="Deconnexion" Clicked="OnLogoutClicked" BackgroundColor="#dc2626" TextColor="White" />
+        </HorizontalStackLayout>
+    </Grid>
+</ContentPage>

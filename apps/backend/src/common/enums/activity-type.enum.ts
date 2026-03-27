@@ -1,0 +1,7 @@
+export enum ActivityType {
+  RESTAURANT = "RESTAURANT",
+  TERRASSE = "TERRASSE",
+  BOITE_NUIT = "BOITE_NUIT",
+  SHOP = "SHOP",
+  CORDONNERIE = "CORDONNERIE",
+}

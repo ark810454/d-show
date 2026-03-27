@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DShow.PosMobile.Pages.ActivitySelectionPage"
+             Title="Activite">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        <VerticalStackLayout Spacing="6">
+            <Label Text="Selection activite" FontSize="26" FontAttributes="Bold" />
+            <Label x:Name="CompanyLabel" TextColor="#64748b" />
+        </VerticalStackLayout>
+
+        <CollectionView x:Name="ActivitiesView" Grid.Row="1" SelectionChanged="OnActivitySelected" Margin="0,20,0,20">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="16" Margin="0,0,0,12" BorderColor="#cbd5e1" CornerRadius="16">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Nom}" FontAttributes="Bold" FontSize="18" />
+                            <Label Text="{Binding Type}" TextColor="#0f766e" />
+                            <Label Text="{Binding Description}" TextColor="#64748b" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <HorizontalStackLayout Grid.Row="2" Spacing="12">
+            <Button Text="Changer entreprise" Clicked="OnBackClicked" />
+            <Button Text="Rafraichir" Clicked="OnRefreshClicked" />
+        </HorizontalStackLayout>
+    </Grid>
+</ContentPage>

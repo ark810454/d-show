@@ -1,0 +1,1267 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum ActivityType {
+  RESTAURANT
+  TERRASSE
+  BOITE_NUIT
+  SHOP
+  CORDONNERIE
+}
+
+enum ActivityStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum ClientType {
+  NORMAL
+  VIP
+}
+
+enum ResourceStatus {
+  LIBRE
+  OCCUPEE
+  RESERVEE
+  EN_NETTOYAGE
+  HORS_SERVICE
+}
+
+enum OrderStatus {
+  BROUILLON
+  EN_COURS
+  SERVI
+  PAYE
+  ANNULE
+}
+
+enum RestaurantOrderKitchenStatus {
+  EN_ATTENTE
+  EN_PREPARATION
+  PRET
+  SERVI
+  ANNULE
+}
+
+enum MenuItemStatus {
+  DISPONIBLE
+  INDISPONIBLE
+}
+
+enum TerraceOrderStatus {
+  EN_ATTENTE
+  EN_PREPARATION
+  PRET
+  SERVI
+  ANNULE
+}
+
+enum ReservationStatus {
+  EN_ATTENTE
+  CONFIRMEE
+  EN_COURS
+  TERMINEE
+  ANNULEE
+}
+
+enum ShopProductStatus {
+  ACTIVE
+  INACTIVE
+  RUPTURE
+}
+
+enum ShopSaleStatus {
+  BROUILLON
+  VALIDEE
+  PAYEE
+  ANNULEE
+  REMBOURSEE
+}
+
+enum StockMovementType {
+  ENTREE
+  SORTIE
+  AJUSTEMENT
+  TRANSFERT
+}
+
+enum PaymentMethod {
+  CASH
+  CARTE
+  MOBILE_MONEY
+  VIREMENT
+  MIXTE
+}
+
+enum PaymentStatus {
+  IMPAYE
+  PARTIEL
+  PAYE
+  ANNULE
+}
+
+enum CashRegisterStatus {
+  OUVERTE
+  FERMEE
+  SUSPENDUE
+}
+
+enum FinancialTransactionType {
+  VENTE
+  DEPENSE
+  REMBOURSEMENT
+  APPROVISIONNEMENT
+  RETRAIT
+  TRANSFERT
+  AJUSTEMENT
+}
+
+enum NightclubBookingType {
+  TABLE
+  LOUNGE
+  EVENT
+}
+
+enum NightclubEventStatus {
+  BROUILLON
+  PUBLIE
+  TERMINE
+  ANNULE
+}
+
+enum NightclubTicketType {
+  STANDARD
+  VIP
+}
+
+enum NightclubTicketStatus {
+  ACTIF
+  VALIDE
+  REFUSE
+  ANNULE
+}
+
+enum NightclubBottleOrderStatus {
+  EN_ATTENTE
+  EN_PREPARATION
+  SERVI
+  ANNULE
+}
+
+model Company {
+  id                    String                 @id @default(cuid())
+  nom                   String
+  slug                  String                 @unique
+  raisonSociale         String?
+  rccm                  String?                @unique
+  idNat                 String?                @unique
+  numeroImpot           String?                @unique
+  telephone             String?
+  email                 String?                @unique
+  adresse               String?                @db.Text
+  logo                  String?
+  statut                CompanyStatus          @default(ACTIVE)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  deletedAt             DateTime?
+  activities            Activity[]
+  users                 User[]
+  clients               Client[]
+  activityLogs          UserActivityLog[]
+  restaurantTables      RestaurantTable[]
+  menuCategories        MenuCategory[]
+  menuItems             MenuItem[]
+  menuItemOptions       MenuItemOption[]
+  restaurantOrders      RestaurantOrder[]
+  restaurantOrderItems  RestaurantOrderItem[]
+  restaurantPayments    Payment[]
+  kitchenTickets        KitchenTicket[]
+  terraceTables         TerraceTable[]
+  terraceMenuCategories TerraceMenuCategory[]
+  terraceMenuItems      TerraceMenuItem[]
+  terraceOrders         TerraceOrder[]
+  terraceOrderItems     TerraceOrderItem[]
+  terracePayments       TerracePayment[]
+  happyHourRules        HappyHourRule[]
+  terraceReservations   TerraceReservation[]
+  nightclubZones        NightclubZone[]
+  nightclubBookings     NightclubBooking[]
+  nightclubEvents       NightclubEvent[]
+  nightclubTickets      NightclubEntryTicket[]
+  nightclubBottleCategories NightclubBottleCategory[]
+  nightclubBottleItems  NightclubBottleItem[]
+  nightclubBottleOrders NightclubBottleOrder[]
+  nightclubBottleOrderItems NightclubBottleOrderItem[]
+  nightclubBottlePayments NightclubBottlePayment[]
+  nightclubAccessLogs   NightclubAccessLog[]
+  shopCategories        ShopCategory[]
+  shopProducts          ShopProduct[]
+  shopPromotions        ShopPromotion[]
+  shopSales             ShopSale[]
+  shopSaleItems         ShopSaleItem[]
+  stockMovements        StockMovement[]
+  financeAccounts       FinanceAccount[]
+  cashRegisters         CashRegister[]
+  financialTransactions FinancialTransaction[]
+
+  @@index([statut, createdAt])
+  @@index([deletedAt])
+}
+
+model Activity {
+  id                    String                 @id @default(cuid())
+  companyId             String
+  nom                   String
+  code                  String
+  type                  ActivityType
+  description           String?                @db.Text
+  statut                ActivityStatus         @default(ACTIVE)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  deletedAt             DateTime?
+  company               Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userAssignments       UserRoleActivity[]
+  activityLogs          UserActivityLog[]
+  restaurantTables      RestaurantTable[]
+  menuCategories        MenuCategory[]
+  menuItems             MenuItem[]
+  menuItemOptions       MenuItemOption[]
+  restaurantOrders      RestaurantOrder[]
+  restaurantOrderItems  RestaurantOrderItem[]
+  restaurantPayments    Payment[]
+  kitchenTickets        KitchenTicket[]
+  terraceTables         TerraceTable[]
+  terraceMenuCategories TerraceMenuCategory[]
+  terraceMenuItems      TerraceMenuItem[]
+  terraceOrders         TerraceOrder[]
+  terraceOrderItems     TerraceOrderItem[]
+  terracePayments       TerracePayment[]
+  happyHourRules        HappyHourRule[]
+  terraceReservations   TerraceReservation[]
+  nightclubZones        NightclubZone[]
+  nightclubBookings     NightclubBooking[]
+  nightclubEvents       NightclubEvent[]
+  nightclubTickets      NightclubEntryTicket[]
+  nightclubBottleCategories NightclubBottleCategory[]
+  nightclubBottleItems  NightclubBottleItem[]
+  nightclubBottleOrders NightclubBottleOrder[]
+  nightclubBottleOrderItems NightclubBottleOrderItem[]
+  nightclubBottlePayments NightclubBottlePayment[]
+  nightclubAccessLogs   NightclubAccessLog[]
+  shopCategories        ShopCategory[]
+  shopProducts          ShopProduct[]
+  shopPromotions        ShopPromotion[]
+  shopSales             ShopSale[]
+  shopSaleItems         ShopSaleItem[]
+  stockMovements        StockMovement[]
+  cashRegisters         CashRegister[]
+  financialTransactions FinancialTransaction[]
+
+  @@unique([companyId, code])
+  @@index([companyId, type, statut])
+  @@index([companyId, createdAt])
+  @@index([deletedAt])
+}
+
+model User {
+  id                    String                 @id @default(cuid())
+  companyId             String
+  nom                   String
+  prenom                String
+  email                 String
+  telephone             String?
+  motDePasseHash        String
+  refreshTokenHash      String?
+  photo                 String?
+  statut                UserStatus             @default(ACTIVE)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  deletedAt             DateTime?
+  company               Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activityLogs          UserActivityLog[]
+  assignments           UserRoleActivity[]
+  servedRestaurantOrders RestaurantOrder[]     @relation("RestaurantOrderServer")
+  processedPayments     Payment[]              @relation("RestaurantPaymentProcessedBy")
+  kitchenTickets        KitchenTicket[]        @relation("KitchenTicketHandledBy")
+  managedTerraceReservations TerraceReservation[] @relation("TerraceReservationAssignee")
+  terraceOrders         TerraceOrder[]       @relation("TerraceOrderServer")
+  processedTerracePayments TerracePayment[]  @relation("TerracePaymentProcessedBy")
+  managedNightclubBookings NightclubBooking[]  @relation("NightclubBookingAssignee")
+  validatedNightclubTickets NightclubEntryTicket[] @relation("NightclubTicketValidatedBy")
+  nightclubBottleOrders  NightclubBottleOrder[] @relation("NightclubBottleOrderServer")
+  processedNightclubBottlePayments NightclubBottlePayment[] @relation("NightclubBottlePaymentProcessedBy")
+  nightclubAccessLogs    NightclubAccessLog[] @relation("NightclubAccessValidatedBy")
+  shopSales             ShopSale[]             @relation("ShopSaleSeller")
+  stockMovements        StockMovement[]
+  financialTransactions FinancialTransaction[]
+
+  @@unique([email])
+  @@index([companyId, statut])
+  @@index([companyId, createdAt])
+  @@index([deletedAt])
+}
+
+model Role {
+  id          String             @id @default(cuid())
+  nom         String             @unique
+  description String?            @db.Text
+  assignments UserRoleActivity[]
+}
+
+model UserRoleActivity {
+  id         String   @id @default(cuid())
+  userId     String
+  roleId     String
+  activityId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId, activityId])
+  @@index([activityId, roleId])
+}
+
+model UserActivityLog {
+  id          String    @id @default(cuid())
+  userId       String
+  companyId    String
+  activityId   String?
+  action       String
+  module       String
+  description  String?   @db.Text
+  ipAddress    String?
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company      Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity     Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, module, createdAt])
+  @@index([userId, createdAt])
+  @@index([activityId, createdAt])
+}
+
+model Client {
+  id                    String                 @id @default(cuid())
+  companyId             String
+  nom                   String
+  prenom                String?
+  telephone             String?
+  email                 String?
+  adresse               String?                @db.Text
+  typeClient            ClientType             @default(NORMAL)
+  blackliste            Boolean                @default(false)
+  note                  String?                @db.Text
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  deletedAt             DateTime?
+  company               Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  restaurantOrders      RestaurantOrder[]
+  terraceReservations   TerraceReservation[]
+  terraceOrders         TerraceOrder[]
+  nightclubBookings     NightclubBooking[]
+  nightclubTickets      NightclubEntryTicket[]
+  nightclubBottleOrders NightclubBottleOrder[]
+  nightclubAccessLogs   NightclubAccessLog[]
+  shopSales             ShopSale[]
+  financialTransactions FinancialTransaction[]
+
+  @@index([companyId, typeClient, blackliste])
+  @@index([companyId, createdAt])
+  @@index([deletedAt])
+}
+
+model RestaurantTable {
+  id          String         @id @default(cuid())
+  companyId   String
+  activityId  String
+  code        String
+  nom         String?
+  zone        String?
+  capacite    Int            @default(1)
+  statut      ResourceStatus @default(LIBRE)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  company     Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  orders      RestaurantOrder[]
+
+  @@unique([activityId, code])
+  @@index([companyId, activityId, statut])
+  @@index([deletedAt])
+}
+
+model MenuCategory {
+  id          String      @id @default(cuid())
+  companyId   String
+  activityId  String
+  nom         String
+  description String?     @db.Text
+  ordre       Int         @default(0)
+  actif       Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  items       MenuItem[]
+
+  @@unique([activityId, nom])
+  @@index([companyId, activityId, actif])
+  @@index([deletedAt])
+}
+
+model MenuItem {
+  id             String           @id @default(cuid())
+  companyId      String
+  activityId     String
+  categoryId     String
+  nom            String
+  description    String?          @db.Text
+  image          String?
+  prix           Decimal          @db.Decimal(12, 2)
+  statut         MenuItemStatus   @default(DISPONIBLE)
+  ordre          Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+  company        Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity       Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  category       MenuCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  options        MenuItemOption[]
+  orderItems     RestaurantOrderItem[]
+
+  @@index([companyId, activityId, statut])
+  @@index([categoryId, ordre])
+  @@index([deletedAt])
+}
+
+model MenuItemOption {
+  id          String    @id @default(cuid())
+  companyId   String
+  activityId  String
+  menuItemId  String
+  nom         String
+  prix        Decimal   @default(0) @db.Decimal(12, 2)
+  actif       Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  menuItem    MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, activityId, actif])
+  @@index([menuItemId])
+}
+
+model RestaurantOrder {
+  id            String         @id @default(cuid())
+  companyId     String
+  activityId    String
+  clientId      String?
+  serverId      String?
+  tableId       String?
+  reference     String         @unique
+  statut        OrderStatus    @default(BROUILLON)
+  statutCuisine RestaurantOrderKitchenStatus @default(EN_ATTENTE)
+  statutPaiement PaymentStatus @default(IMPAYE)
+  modePaiement  PaymentMethod?
+  totalTtc      Decimal        @db.Decimal(12, 2)
+  remise        Decimal        @default(0) @db.Decimal(12, 2)
+  commentaire   String?        @db.Text
+  notesCuisine  String?        @db.Text
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity      Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  client        Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  serveur       User?          @relation("RestaurantOrderServer", fields: [serverId], references: [id], onDelete: SetNull)
+  table         RestaurantTable? @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  items         RestaurantOrderItem[]
+  payments      Payment[]
+  kitchenTickets KitchenTicket[]
+  transactions  FinancialTransaction[]
+
+  @@index([companyId, activityId, statut])
+  @@index([companyId, activityId, statutCuisine])
+  @@index([companyId, activityId, createdAt])
+  @@index([clientId])
+  @@index([serverId])
+  @@index([deletedAt])
+}
+
+model RestaurantOrderItem {
+  id               String          @id @default(cuid())
+  companyId        String
+  activityId       String
+  restaurantOrderId String
+  menuItemId       String?
+  libelle          String
+  quantite         Int             @default(1)
+  prixUnitaire     Decimal         @db.Decimal(12, 2)
+  totalLigne       Decimal         @db.Decimal(12, 2)
+  note             String?         @db.Text
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  company          Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity         Activity        @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  restaurantOrder  RestaurantOrder @relation(fields: [restaurantOrderId], references: [id], onDelete: Cascade)
+  menuItem         MenuItem?       @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, restaurantOrderId])
+  @@index([menuItemId])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  companyId         String
+  activityId        String
+  restaurantOrderId String
+  processedByUserId String?
+  reference         String        @unique
+  montant           Decimal       @db.Decimal(12, 2)
+  modePaiement      PaymentMethod
+  statut            PaymentStatus @default(PAYE)
+  note              String?       @db.Text
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  company           Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity          Activity      @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  restaurantOrder   RestaurantOrder @relation(fields: [restaurantOrderId], references: [id], onDelete: Cascade)
+  processedBy       User?         @relation("RestaurantPaymentProcessedBy", fields: [processedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, createdAt])
+  @@index([restaurantOrderId])
+}
+
+model KitchenTicket {
+  id                String                       @id @default(cuid())
+  companyId         String
+  activityId        String
+  restaurantOrderId String
+  handledByUserId   String?
+  code              String                       @unique
+  statut            RestaurantOrderKitchenStatus @default(EN_ATTENTE)
+  sentAt            DateTime                     @default(now())
+  readyAt           DateTime?
+  servedAt          DateTime?
+  note              String?                      @db.Text
+  createdAt         DateTime                     @default(now())
+  updatedAt         DateTime                     @updatedAt
+  company           Company                      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity          Activity                     @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  restaurantOrder   RestaurantOrder              @relation(fields: [restaurantOrderId], references: [id], onDelete: Cascade)
+  handledBy         User?                        @relation("KitchenTicketHandledBy", fields: [handledByUserId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, statut])
+  @@index([restaurantOrderId])
+}
+
+model TerraceTable {
+  id          String         @id @default(cuid())
+  companyId   String
+  activityId  String
+  code        String
+  nom         String?
+  emplacement String?
+  capacite    Int            @default(1)
+  statut      ResourceStatus @default(LIBRE)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  company     Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  reservations TerraceReservation[]
+  orders      TerraceOrder[]
+
+  @@unique([activityId, code])
+  @@index([companyId, activityId, statut])
+  @@index([deletedAt])
+}
+
+model TerraceMenuCategory {
+  id          String      @id @default(cuid())
+  companyId   String
+  activityId  String
+  nom         String
+  description String?     @db.Text
+  ordre       Int         @default(0)
+  actif       Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  items       TerraceMenuItem[]
+
+  @@unique([activityId, nom])
+  @@index([companyId, activityId, actif])
+  @@index([deletedAt])
+}
+
+model TerraceMenuItem {
+  id             String           @id @default(cuid())
+  companyId      String
+  activityId     String
+  categoryId     String
+  nom            String
+  description    String?          @db.Text
+  image          String?
+  prix           Decimal          @db.Decimal(12, 2)
+  boissonUniquement Boolean       @default(true)
+  statut         MenuItemStatus   @default(DISPONIBLE)
+  ordre          Int              @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+  company        Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity       Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  category       TerraceMenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems     TerraceOrderItem[]
+
+  @@index([companyId, activityId, statut])
+  @@index([categoryId, ordre])
+  @@index([deletedAt])
+}
+
+model HappyHourRule {
+  id            String    @id @default(cuid())
+  companyId     String
+  activityId    String
+  nom           String
+  reductionPct  Decimal   @db.Decimal(5, 2)
+  startTime     String
+  endTime       String
+  joursSemaine  String
+  actif         Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity      Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, activityId, actif])
+}
+
+model TerraceOrder {
+  id              String             @id @default(cuid())
+  companyId       String
+  activityId      String
+  clientId        String?
+  serverId        String?
+  terraceTableId  String?
+  reference       String             @unique
+  statut          TerraceOrderStatus @default(EN_ATTENTE)
+  statutPaiement  PaymentStatus      @default(IMPAYE)
+  modePaiement    PaymentMethod?
+  totalBrut       Decimal            @db.Decimal(12, 2)
+  reductionMontant Decimal           @default(0) @db.Decimal(12, 2)
+  totalNet        Decimal            @db.Decimal(12, 2)
+  happyHourLabel  String?
+  note            String?            @db.Text
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+  company         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity        Activity           @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  client          Client?            @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  serveur         User?              @relation("TerraceOrderServer", fields: [serverId], references: [id], onDelete: SetNull)
+  table           TerraceTable?      @relation(fields: [terraceTableId], references: [id], onDelete: SetNull)
+  items           TerraceOrderItem[]
+  payments        TerracePayment[]
+
+  @@index([companyId, activityId, statut])
+  @@index([companyId, createdAt])
+  @@index([terraceTableId])
+  @@index([deletedAt])
+}
+
+model TerraceOrderItem {
+  id             String          @id @default(cuid())
+  companyId      String
+  activityId     String
+  terraceOrderId String
+  menuItemId     String?
+  libelle        String
+  quantite       Int             @default(1)
+  prixUnitaire   Decimal         @db.Decimal(12, 2)
+  totalLigne     Decimal         @db.Decimal(12, 2)
+  note           String?         @db.Text
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity       Activity        @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  terraceOrder   TerraceOrder    @relation(fields: [terraceOrderId], references: [id], onDelete: Cascade)
+  menuItem       TerraceMenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, terraceOrderId])
+  @@index([menuItemId])
+}
+
+model TerracePayment {
+  id              String        @id @default(cuid())
+  companyId       String
+  activityId      String
+  terraceOrderId  String
+  processedByUserId String?
+  reference       String        @unique
+  montant         Decimal       @db.Decimal(12, 2)
+  modePaiement    PaymentMethod
+  statut          PaymentStatus @default(PAYE)
+  note            String?       @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity        Activity      @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  terraceOrder    TerraceOrder  @relation(fields: [terraceOrderId], references: [id], onDelete: Cascade)
+  processedBy     User?         @relation("TerracePaymentProcessedBy", fields: [processedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, createdAt])
+  @@index([terraceOrderId])
+}
+
+model TerraceReservation {
+  id             String            @id @default(cuid())
+  companyId      String
+  activityId     String
+  clientId       String?
+  terraceTableId String?
+  assigneeUserId String?
+  reference      String            @unique
+  dateDebut      DateTime
+  dateFin        DateTime
+  nombrePlaces   Int               @default(1)
+  statut         ReservationStatus @default(EN_ATTENTE)
+  statutPaiement PaymentStatus     @default(IMPAYE)
+  totalTtc       Decimal           @default(0) @db.Decimal(12, 2)
+  acompte        Decimal           @default(0) @db.Decimal(12, 2)
+  note           String?           @db.Text
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime?
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity       Activity          @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  client         Client?           @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  terraceTable   TerraceTable?     @relation(fields: [terraceTableId], references: [id], onDelete: SetNull)
+  assignee       User?             @relation("TerraceReservationAssignee", fields: [assigneeUserId], references: [id], onDelete: SetNull)
+  transactions   FinancialTransaction[]
+
+  @@index([companyId, activityId, statut])
+  @@index([companyId, dateDebut, dateFin])
+  @@index([clientId])
+  @@index([deletedAt])
+}
+
+model NightclubZone {
+  id          String         @id @default(cuid())
+  companyId   String
+  activityId  String
+  code        String
+  nom         String
+  capacite    Int            @default(1)
+  statut      ResourceStatus @default(LIBRE)
+  description String?        @db.Text
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  company     Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  bookings    NightclubBooking[]
+  bottleOrders NightclubBottleOrder[]
+
+  @@unique([activityId, code])
+  @@index([companyId, activityId, statut])
+  @@index([deletedAt])
+}
+
+model NightclubBooking {
+  id             String               @id @default(cuid())
+  companyId      String
+  activityId     String
+  clientId       String?
+  zoneId         String?
+  assigneeUserId String?
+  reference      String               @unique
+  typeReservation NightclubBookingType
+  dateEvenement  DateTime
+  heureDebut     DateTime?
+  heureFin       DateTime?
+  nombrePersonnes Int                 @default(1)
+  statut         ReservationStatus    @default(EN_ATTENTE)
+  statutPaiement PaymentStatus        @default(IMPAYE)
+  totalTtc       Decimal              @default(0) @db.Decimal(12, 2)
+  montantPaye    Decimal              @default(0) @db.Decimal(12, 2)
+  note           String?              @db.Text
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  deletedAt      DateTime?
+  company        Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity       Activity             @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  client         Client?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  zone           NightclubZone?       @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  assignee       User?                @relation("NightclubBookingAssignee", fields: [assigneeUserId], references: [id], onDelete: SetNull)
+  tickets        NightclubEntryTicket[]
+  bottleOrders   NightclubBottleOrder[]
+  transactions   FinancialTransaction[]
+
+  @@index([companyId, activityId, statut])
+  @@index([companyId, dateEvenement])
+  @@index([clientId])
+  @@index([deletedAt])
+}
+
+model NightclubEvent {
+  id             String               @id @default(cuid())
+  companyId      String
+  activityId     String
+  nom            String
+  djInvite       String?
+  dateEvenement  DateTime
+  heureOuverture DateTime?
+  heureFermeture DateTime?
+  prixEntree     Decimal              @default(0) @db.Decimal(12, 2)
+  description    String?              @db.Text
+  statut         NightclubEventStatus @default(BROUILLON)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  deletedAt      DateTime?
+  company        Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity       Activity             @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  tickets        NightclubEntryTicket[]
+  bottleOrders   NightclubBottleOrder[]
+
+  @@index([companyId, activityId, dateEvenement])
+  @@index([companyId, activityId, statut])
+  @@index([deletedAt])
+}
+
+model NightclubEntryTicket {
+  id               String               @id @default(cuid())
+  companyId        String
+  activityId       String
+  clientId         String?
+  eventId          String?
+  bookingId        String?
+  validatedByUserId String?
+  reference        String               @unique
+  qrCode           String               @unique
+  typeTicket       NightclubTicketType
+  statut           NightclubTicketStatus @default(ACTIF)
+  montant          Decimal              @db.Decimal(12, 2)
+  note             String?              @db.Text
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  validatedAt      DateTime?
+  usedAt           DateTime?
+  company          Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity         Activity             @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  client           Client?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  event            NightclubEvent?      @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  booking          NightclubBooking?    @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  validatedBy      User?                @relation("NightclubTicketValidatedBy", fields: [validatedByUserId], references: [id], onDelete: SetNull)
+  accessLogs       NightclubAccessLog[]
+
+  @@index([companyId, activityId, statut])
+  @@index([clientId, createdAt])
+  @@index([eventId, createdAt])
+}
+
+model NightclubBottleCategory {
+  id          String      @id @default(cuid())
+  companyId   String
+  activityId  String
+  nom         String
+  description String?     @db.Text
+  ordre       Int         @default(0)
+  actif       Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  items       NightclubBottleItem[]
+
+  @@unique([activityId, nom])
+  @@index([companyId, activityId, actif])
+  @@index([deletedAt])
+}
+
+model NightclubBottleItem {
+  id          String           @id @default(cuid())
+  companyId   String
+  activityId  String
+  categoryId  String
+  nom         String
+  description String?          @db.Text
+  image       String?
+  prix        Decimal          @db.Decimal(12, 2)
+  estPack     Boolean          @default(false)
+  vipOnly     Boolean          @default(false)
+  statut      MenuItemStatus   @default(DISPONIBLE)
+  ordre       Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
+  company     Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  category    NightclubBottleCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems  NightclubBottleOrderItem[]
+
+  @@index([companyId, activityId, statut])
+  @@index([categoryId, ordre])
+  @@index([deletedAt])
+}
+
+model NightclubBottleOrder {
+  id              String                    @id @default(cuid())
+  companyId       String
+  activityId      String
+  clientId        String?
+  bookingId       String?
+  zoneId          String?
+  serverId        String?
+  eventId         String?
+  reference       String                    @unique
+  statut          NightclubBottleOrderStatus @default(EN_ATTENTE)
+  statutPaiement  PaymentStatus             @default(IMPAYE)
+  modePaiement    PaymentMethod?
+  totalTtc        Decimal                   @db.Decimal(12, 2)
+  note            String?                   @db.Text
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  deletedAt       DateTime?
+  company         Company                   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity        Activity                  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  client          Client?                   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  booking         NightclubBooking?         @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  zone            NightclubZone?            @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  serveur         User?                     @relation("NightclubBottleOrderServer", fields: [serverId], references: [id], onDelete: SetNull)
+  event           NightclubEvent?           @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  items           NightclubBottleOrderItem[]
+  payments        NightclubBottlePayment[]
+
+  @@index([companyId, activityId, statut])
+  @@index([companyId, createdAt])
+  @@index([bookingId])
+  @@index([zoneId])
+  @@index([deletedAt])
+}
+
+model NightclubBottleOrderItem {
+  id                String               @id @default(cuid())
+  companyId         String
+  activityId        String
+  bottleOrderId     String
+  bottleItemId      String?
+  libelle           String
+  quantite          Int                  @default(1)
+  prixUnitaire      Decimal              @db.Decimal(12, 2)
+  totalLigne        Decimal              @db.Decimal(12, 2)
+  note              String?              @db.Text
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  company           Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity          Activity             @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  bottleOrder       NightclubBottleOrder @relation(fields: [bottleOrderId], references: [id], onDelete: Cascade)
+  bottleItem        NightclubBottleItem? @relation(fields: [bottleItemId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, bottleOrderId])
+  @@index([bottleItemId])
+}
+
+model NightclubBottlePayment {
+  id                String               @id @default(cuid())
+  companyId         String
+  activityId        String
+  bottleOrderId     String
+  processedByUserId String?
+  reference         String               @unique
+  montant           Decimal              @db.Decimal(12, 2)
+  modePaiement      PaymentMethod
+  statut            PaymentStatus        @default(PAYE)
+  note              String?              @db.Text
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  company           Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity          Activity             @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  bottleOrder       NightclubBottleOrder @relation(fields: [bottleOrderId], references: [id], onDelete: Cascade)
+  processedBy       User?                @relation("NightclubBottlePaymentProcessedBy", fields: [processedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, createdAt])
+  @@index([bottleOrderId])
+}
+
+model NightclubAccessLog {
+  id                String              @id @default(cuid())
+  companyId         String
+  activityId        String
+  clientId          String?
+  ticketId          String?
+  validatedByUserId String?
+  decision          String
+  reason            String?
+  ipAddress         String?
+  createdAt         DateTime            @default(now())
+  company           Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity          Activity            @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  client            Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  ticket            NightclubEntryTicket? @relation(fields: [ticketId], references: [id], onDelete: SetNull)
+  validatedBy       User?               @relation("NightclubAccessValidatedBy", fields: [validatedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, createdAt])
+  @@index([ticketId, createdAt])
+  @@index([clientId, createdAt])
+}
+
+model ShopCategory {
+  id          String       @id @default(cuid())
+  companyId   String
+  activityId  String
+  nom         String
+  description String?      @db.Text
+  actif       Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity     @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  produits    ShopProduct[]
+
+  @@unique([activityId, nom])
+  @@index([companyId, activityId, actif])
+  @@index([deletedAt])
+}
+
+model ShopProduct {
+  id             String            @id @default(cuid())
+  companyId      String
+  activityId     String
+  categoryId     String?
+  sku            String
+  codeBarres     String?
+  nom            String
+  description    String?           @db.Text
+  image          String?
+  prixVente      Decimal           @db.Decimal(12, 2)
+  prixAchat      Decimal?          @db.Decimal(12, 2)
+  stockActuel    Int               @default(0)
+  stockMinimum   Int               @default(0)
+  statut         ShopProductStatus @default(ACTIVE)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime?
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity       Activity          @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  categorie      ShopCategory?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  promotions     ShopPromotion[]
+  saleItems      ShopSaleItem[]
+  stockMovements StockMovement[]
+
+  @@unique([activityId, sku])
+  @@unique([activityId, codeBarres])
+  @@index([companyId, activityId, statut])
+  @@index([categoryId])
+  @@index([deletedAt])
+}
+
+model ShopPromotion {
+  id            String      @id @default(cuid())
+  companyId     String
+  activityId    String
+  productId     String
+  nom           String
+  description   String?     @db.Text
+  reductionType String
+  reductionValeur Decimal   @db.Decimal(12, 2)
+  dateDebut     DateTime
+  dateFin       DateTime
+  actif         Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity      Activity    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  product       ShopProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, activityId, actif])
+  @@index([productId, dateDebut, dateFin])
+}
+
+model ShopSale {
+  id             String            @id @default(cuid())
+  companyId      String
+  activityId     String
+  clientId       String?
+  sellerId       String?
+  reference      String            @unique
+  statut         ShopSaleStatus    @default(BROUILLON)
+  statutPaiement PaymentStatus     @default(IMPAYE)
+  modePaiement   PaymentMethod?
+  totalHt        Decimal           @default(0) @db.Decimal(12, 2)
+  taxeMontant    Decimal           @default(0) @db.Decimal(12, 2)
+  totalTtc       Decimal           @db.Decimal(12, 2)
+  remise         Decimal           @default(0) @db.Decimal(12, 2)
+  note           String?           @db.Text
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deletedAt      DateTime?
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity       Activity          @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  client         Client?           @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  vendeur        User?             @relation("ShopSaleSeller", fields: [sellerId], references: [id], onDelete: SetNull)
+  items          ShopSaleItem[]
+  transactions   FinancialTransaction[]
+
+  @@index([companyId, activityId, statut])
+  @@index([companyId, createdAt])
+  @@index([clientId])
+  @@index([sellerId])
+  @@index([deletedAt])
+}
+
+model ShopSaleItem {
+  id          String    @id @default(cuid())
+  companyId   String
+  activityId  String
+  shopSaleId  String
+  productId   String?
+  libelle     String
+  quantite    Int       @default(1)
+  prixUnitaire Decimal  @db.Decimal(12, 2)
+  totalLigne  Decimal   @db.Decimal(12, 2)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity    Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  sale        ShopSale  @relation(fields: [shopSaleId], references: [id], onDelete: Cascade)
+  produit     ShopProduct? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, shopSaleId])
+  @@index([productId])
+}
+
+model StockMovement {
+  id            String            @id @default(cuid())
+  companyId     String
+  activityId    String
+  productId     String
+  userId        String?
+  typeMouvement StockMovementType
+  quantite      Int
+  coutUnitaire  Decimal?          @db.Decimal(12, 2)
+  reference     String?
+  raison        String?
+  note          String?           @db.Text
+  occuredAt     DateTime          @default(now())
+  createdAt     DateTime          @default(now())
+  company       Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity      Activity          @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  product       ShopProduct       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user          User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, activityId, occuredAt])
+  @@index([productId, occuredAt])
+  @@index([userId, occuredAt])
+}
+
+model FinanceAccount {
+  id           String       @id @default(cuid())
+  companyId    String
+  code         String
+  nom          String
+  description  String?      @db.Text
+  actif        Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+  company      Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  transactions FinancialTransaction[]
+
+  @@unique([companyId, code])
+  @@index([companyId, actif])
+  @@index([deletedAt])
+}
+
+model CashRegister {
+  id                 String               @id @default(cuid())
+  companyId          String
+  activityId         String
+  code               String
+  nom                String
+  statut             CashRegisterStatus   @default(FERMEE)
+  soldeOuverture     Decimal              @default(0) @db.Decimal(12, 2)
+  soldeCourant       Decimal              @default(0) @db.Decimal(12, 2)
+  openedAt           DateTime?
+  closedAt           DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  deletedAt          DateTime?
+  company            Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity           Activity             @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  transactions       FinancialTransaction[]
+
+  @@unique([activityId, code])
+  @@index([companyId, activityId, statut])
+  @@index([deletedAt])
+}
+
+model FinancialTransaction {
+  id                    String                   @id @default(cuid())
+  companyId             String
+  activityId            String?
+  financeAccountId      String?
+  cashRegisterId        String?
+  userId                String?
+  clientId              String?
+  restaurantOrderId     String?
+  terraceReservationId  String?
+  nightclubBookingId    String?
+  shopSaleId            String?
+  reference             String                   @unique
+  typeTransaction       FinancialTransactionType
+  modePaiement          PaymentMethod?
+  statutPaiement        PaymentStatus            @default(IMPAYE)
+  montant               Decimal                  @db.Decimal(12, 2)
+  description           String?                  @db.Text
+  justificatif          String?
+  dateTransaction       DateTime                 @default(now())
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+  deletedAt             DateTime?
+  company               Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activity              Activity?                @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  financeAccount        FinanceAccount?          @relation(fields: [financeAccountId], references: [id], onDelete: SetNull)
+  cashRegister          CashRegister?            @relation(fields: [cashRegisterId], references: [id], onDelete: SetNull)
+  user                  User?                    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  client                Client?                  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  restaurantOrder       RestaurantOrder?         @relation(fields: [restaurantOrderId], references: [id], onDelete: SetNull)
+  terraceReservation    TerraceReservation?      @relation(fields: [terraceReservationId], references: [id], onDelete: SetNull)
+  nightclubBooking      NightclubBooking?        @relation(fields: [nightclubBookingId], references: [id], onDelete: SetNull)
+  shopSale              ShopSale?                @relation(fields: [shopSaleId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, dateTransaction])
+  @@index([activityId, dateTransaction])
+  @@index([cashRegisterId, dateTransaction])
+  @@index([userId, dateTransaction])
+  @@index([statutPaiement, dateTransaction])
+  @@index([deletedAt])
+}

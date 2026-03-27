@@ -1,0 +1,28 @@
+node_modules
+.next
+dist
+coverage
+.turbo
+*.log
+*.err
+*.tsbuildinfo
+.vs
+.dotnet
+.dotnet/
+.dotnet *
+tmp-child.js
+Capture d’écran*
+Capture d'écran*
+Capture*.png
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+apps/backend/prisma/migrations
+apps/mobile-pos/bin
+apps/mobile-pos/obj
+apps/frontend/.next
+apps/frontend/out
+apps/backend/dist
+packages/shared/dist

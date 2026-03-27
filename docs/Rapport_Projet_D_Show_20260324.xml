@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>OpenAI Codex</Author>
+  <LastAuthor>OpenAI Codex</LastAuthor>
+  <Created>2026-03-24T00:20:59Z</Created>
+  <Company>D_Show</Company>
+  <Version>1.0</Version>
+ </DocumentProperties>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>12000</WindowHeight>
+  <WindowWidth>24000</WindowWidth>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" ss:Size="11"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="Header">
+   <Font ss:FontName="Calibri" ss:Size="12" ss:Bold="1" ss:Color="#FFFFFF"/>
+   <Interior ss:Color="#1F2937" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="Title">
+   <Font ss:FontName="Calibri" ss:Size="14" ss:Bold="1"/>
+   <Interior ss:Color="#E2E8F0" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="Success">
+   <Interior ss:Color="#DCFCE7" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="Warn">
+   <Interior ss:Color="#FEF3C7" ss:Pattern="Solid"/>
+  </Style>
+ </Styles>
+
+ <Worksheet ss:Name="Synthese">
+  <Table>
+   <Row>
+    <Cell ss:StyleID="Title"><Data ss:Type="String">Rapport Projet D_Show</Data></Cell>
+    <Cell ss:StyleID="Title"><Data ss:Type="String">Etat global</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Champ</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Valeur</Data></Cell>
+   </Row>
+   <Row><Cell><Data ss:Type="String">Nom projet</Data></Cell><Cell><Data ss:Type="String">D_Show - Gestion multi-activites</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Date rapport</Data></Cell><Cell><Data ss:Type="String">2026-03-24</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Stack frontend</Data></Cell><Cell><Data ss:Type="String">Next.js + React + TypeScript + Tailwind CSS + Zustand</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Stack backend</Data></Cell><Cell><Data ss:Type="String">NestJS + TypeScript + Prisma + MySQL + Socket.IO</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Authentification</Data></Cell><Cell><Data ss:Type="String">JWT + refresh token</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Architecture</Data></Cell><Cell><Data ss:Type="String">Monorepo apps/frontend + apps/backend + packages/shared</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Etat backend</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Fonctionnel</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Etat frontend</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Corrige et relance propre local</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Etat base MySQL</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Connexion XAMPP retablie</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Scenario principal teste</Data></Cell><Cell><Data ss:Type="String">Entreprise - activites - utilisateur principal - login - restaurant - commande - paiement</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Architecture">
+  <Table>
+   <Row>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Bloc</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Description</Data></Cell>
+   </Row>
+   <Row><Cell><Data ss:Type="String">apps/frontend</Data></Cell><Cell><Data ss:Type="String">Interface web admin, App Router, pages par module, store Zustand, services API, responsive UI</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">apps/backend</Data></Cell><Cell><Data ss:Type="String">API NestJS modulaire, auth, roles, companies, activities, restaurant, terrace, nightclub, shop, finance, stats, realtime</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">packages/shared</Data></Cell><Cell><Data ss:Type="String">Types partages frontend/backend pour contexte actif, entreprises, activites et enums</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Prisma</Data></Cell><Cell><Data ss:Type="String">Schema multientreprise, multi-activite, relations companyId/activityId, seed de base, client genere</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Temps reel</Data></Cell><Cell><Data ss:Type="String">Socket.IO avec rooms par companyId et activityId</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Preparation mobile</Data></Cell><Cell><Data ss:Type="String">API REST coherente, JSON stable, JWT compatible mobile, docs MAUI dans docs/MOBILE_MAUI_API.md</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Modules">
+  <Table>
+   <Row>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Module</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Statut</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Contenu principal</Data></Cell>
+   </Row>
+   <Row><Cell><Data ss:Type="String">Entreprises</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">CRUD, detail, activation/desactivation, liste autorisee, selection entreprise</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Activites</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">CRUD, types RESTAURANT/TERRASSE/BOITE_NUIT/SHOP/CORDONNERIE, selection activite, header contextuel</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Authentification</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">Login, logout, refresh, profil, guards JWT, roles, scope entreprise/activite</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Utilisateurs</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">Creation, edition, desactivation, roles par activite, utilisateur principal, pointage, performance</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Dashboard global</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">KPI, graphiques, activite recente, filtres date/activite, stats backend</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Restaurant</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">Tables, menu, categories, plats, modification plat, commandes, cuisine, paiements, stats, temps reel</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Terrasse</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">Zones/tables, POS rapide, happy hour, paiements, stats, temps reel</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Boite de nuit</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">Billetterie, QR, validation ticket, VIP, reservations, evenements, bouteilles, stats, securite</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Shop / Boutique</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">Produits, categories, promotions, POS, stock, mouvements, ventes, alertes, stats</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Finance</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">Dashboard financier, depenses, categories, rapports, benefices, indicateurs</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Realtime / Synchronisation</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">Cree</Data></Cell><Cell><Data ss:Type="String">Gateway Socket.IO, rooms scopees, notifications, toasts, preparation MAUI</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Correctifs">
+  <Table>
+   <Row>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Zone</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Correction appliquee</Data></Cell>
+   </Row>
+   <Row><Cell><Data ss:Type="String">Prisma service</Data></Cell><Cell><Data ss:Type="String">Ecoute beforeExit migree vers process.on pour compatibilite runtime</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Backend start</Data></Cell><Cell><Data ss:Type="String">Scripts backend ajustes pour startup stable et dist/main.js correct</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">CORS</Data></Cell><Cell><Data ss:Type="String">Support explicite localhost:3001 et frontend local configurable</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Session frontend</Data></Cell><Cell><Data ss:Type="String">Hydratation Zustand, cookies session, guard pages select-company/select-activity</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Navigation activite</Data></Cell><Cell><Data ss:Type="String">Sidebar et redirections adaptees au type d activite</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Restaurant menu</Data></Cell><Cell><Data ss:Type="String">Creation/modification plats, categorie, filtre par categorie, endpoints PATCH menu item</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Auth multi-entreprise</Data></Cell><Cell><Data ss:Type="String">super_admin global, restrictions scope corrigees, utilisateur principal par entreprise</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Emails utilisateurs</Data></Cell><Cell><Data ss:Type="String">Controle d unicite applicatif et schema Prisma prepare pour email unique global</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Frontend login local</Data></Cell><Cell><Data ss:Type="String">API locale forcee vers 127.0.0.1:4000, timeout ajoute, ancien process Next bloque tue, relance propre</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Frontend custom server</Data></Cell><Cell><Data ss:Type="String">Script next-dev-server mis a jour avec TURBOPACK=0 pour contourner les blocages locaux</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Tests_Demo">
+  <Table>
+   <Row>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Scenario</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Resultat</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Details</Data></Cell>
+   </Row>
+   <Row><Cell><Data ss:Type="String">Login super admin</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Connexion admin seed validee</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Creation entreprise</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Creation entreprise de demonstration en base</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Creation activites</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Restaurant Premium + Terrasse Sunset</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Creation responsable</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Utilisateur principal rattache a l entreprise et aux activites</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Login responsable</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Compte responsable.20260323174028@dshow.app valide</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Restaurant - table</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Table Jardin creee</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Restaurant - categories</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Plats + Boissons crees</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Restaurant - plats</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Poulet Braise Signature, Poisson Grille, Jus Ananas</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Restaurant - commande</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Commande cuisine + paiement cash valides</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Shop demo</Data></Cell><Cell ss:StyleID="Success"><Data ss:Type="String">OK</Data></Cell><Cell><Data ss:Type="String">Categorie, produit, vente et decrement stock verifies</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="Acces_et_Lancement">
+  <Table>
+   <Row>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Element</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Valeur</Data></Cell>
+   </Row>
+   <Row><Cell><Data ss:Type="String">Frontend local</Data></Cell><Cell><Data ss:Type="String">http://127.0.0.1:3001/login</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Backend health</Data></Cell><Cell><Data ss:Type="String">http://127.0.0.1:4000/api/health</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Compte admin</Data></Cell><Cell><Data ss:Type="String">admin@dshow.app / Admin123!</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Compte demo responsable</Data></Cell><Cell><Data ss:Type="String">responsable.20260323174028@dshow.app / @Test1234</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Entreprise demo</Data></Cell><Cell><Data ss:Type="String">D_Show Bistro 20260323174028</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Activite demo 1</Data></Cell><Cell><Data ss:Type="String">Restaurant Premium</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Activite demo 2</Data></Cell><Cell><Data ss:Type="String">Terrasse Sunset</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Commande backend</Data></Cell><Cell><Data ss:Type="String">node dist/main.js dans apps/backend</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Commande frontend</Data></Cell><Cell><Data ss:Type="String">node scripts/next-dev-server.cjs dans apps/frontend</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Point d attention</Data></Cell><Cell ss:StyleID="Warn"><Data ss:Type="String">Toujours garder MySQL XAMPP lance avant backend</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+</Workbook>

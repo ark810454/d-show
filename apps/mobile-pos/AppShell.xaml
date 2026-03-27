@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="DShow.PosMobile.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:DShow.PosMobile.Pages"
+    Title="D_Show POS Mobile"
+    FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="False">
+
+    <ShellContent Route="bootstrap" ContentTemplate="{DataTemplate pages:BootstrapPage}" />
+    <ShellContent Route="login" ContentTemplate="{DataTemplate pages:LoginPage}" />
+    <ShellContent Route="companies" ContentTemplate="{DataTemplate pages:CompanySelectionPage}" />
+    <ShellContent Route="activities" ContentTemplate="{DataTemplate pages:ActivitySelectionPage}" />
+    <ShellContent Route="hub" ContentTemplate="{DataTemplate pages:PosHubPage}" />
+
+</Shell>

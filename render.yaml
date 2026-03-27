@@ -1,0 +1,86 @@
+services:
+  - name: dshow-mysql
+    type: pserv
+    runtime: image
+    plan: starter
+    region: frankfurt
+    image:
+      url: docker.io/mysql:8.0
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 10
+    envVars:
+      - key: MYSQL_DATABASE
+        value: dshow
+      - key: MYSQL_USER
+        value: dshow
+      - key: MYSQL_PASSWORD
+        generateValue: true
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
+
+  - name: dshow-api
+    type: web
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    dockerfilePath: ./apps/backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: FRONTEND_URLS
+        sync: false
+      - key: MYSQL_HOST
+        fromService:
+          type: pserv
+          name: dshow-mysql
+          property: host
+      - key: MYSQL_PORT
+        fromService:
+          type: pserv
+          name: dshow-mysql
+          property: port
+      - key: MYSQL_DATABASE
+        fromService:
+          type: pserv
+          name: dshow-mysql
+          envVarKey: MYSQL_DATABASE
+      - key: MYSQL_USER
+        fromService:
+          type: pserv
+          name: dshow-mysql
+          envVarKey: MYSQL_USER
+      - key: MYSQL_PASSWORD
+        fromService:
+          type: pserv
+          name: dshow-mysql
+          envVarKey: MYSQL_PASSWORD
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_TTL
+        value: 15m
+      - key: JWT_REFRESH_TTL
+        value: 7d
+
+  - name: dshow-web
+    type: web
+    runtime: node
+    plan: starter
+    region: frankfurt
+    rootDir: .
+    buildCommand: npm install && npm run build --workspace packages/shared && npm run build --workspace apps/frontend
+    startCommand: npm run start --workspace frontend
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        sync: false

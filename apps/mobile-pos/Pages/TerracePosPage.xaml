@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DShow.PosMobile.Pages.TerracePosPage"
+             Title="Terrasse POS">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,*" Padding="16">
+        <HorizontalStackLayout Spacing="12">
+            <Button Text="Retour" Clicked="OnBackClicked" />
+            <Label Text="Terrasse POS" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+
+        <Picker x:Name="TerraceTablePicker" Grid.Row="1" Title="Table / zone (optionnel)" Margin="0,12,0,0" />
+
+        <CollectionView x:Name="TerraceMenuItemsView" Grid.Row="2" Margin="0,12,0,12" SelectionChanged="OnMenuItemSelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="12" Margin="0,0,0,8" BorderColor="#cbd5e1" CornerRadius="12">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Nom}" FontAttributes="Bold" />
+                            <Label Text="{Binding Description}" TextColor="#64748b" />
+                            <Label Text="{Binding Prix}" TextColor="#0f766e" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Entry x:Name="TerraceNoteEntry" Grid.Row="3" Placeholder="Note ticket (optionnel)" />
+
+        <Grid Grid.Row="4" ColumnDefinitions="*,*" Margin="0,12,0,0">
+            <VerticalStackLayout Grid.Column="0" Spacing="8">
+                <Label Text="Panier rapide" FontAttributes="Bold" />
+                <CollectionView x:Name="TerraceCartView" SelectionChanged="OnCartItemSelected">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="12" Margin="0,0,0,8" BorderColor="#e2e8f0" CornerRadius="12">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Libelle}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Quantite}" />
+                                    <Label Text="{Binding Total}" TextColor="#0f766e" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Label x:Name="TerraceTotalLabel" FontAttributes="Bold" Text="Total: 0" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1" Spacing="10" Padding="12,0,0,0">
+                <Button Text="Cash" Clicked="OnCashClicked" BackgroundColor="#0f766e" TextColor="White" />
+                <Button Text="Carte" Clicked="OnCardClicked" />
+                <Button Text="Mobile Money" Clicked="OnMobileClicked" />
+                <Label x:Name="TerraceStatusLabel" TextColor="#64748b" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

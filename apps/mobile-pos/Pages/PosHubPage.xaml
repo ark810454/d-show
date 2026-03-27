@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DShow.PosMobile.Pages.PosHubPage"
+             Title="Hub POS">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+            <Label x:Name="CompanyLabel" FontSize="28" FontAttributes="Bold" />
+            <Label x:Name="ActivityLabel" TextColor="#64748b" />
+
+            <Button x:Name="PrimaryPosButton" Text="Ouvrir POS" Clicked="OnPrimaryPosClicked" BackgroundColor="#0f766e" TextColor="White" HeightRequest="56" />
+            <Button Text="Impression Bluetooth" Clicked="OnPrinterClicked" />
+            <Button Text="Centre de synchronisation" Clicked="OnSyncClicked" />
+            <Button Text="Changer activite" Clicked="OnChangeActivityClicked" />
+            <Button Text="Changer entreprise" Clicked="OnChangeCompanyClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

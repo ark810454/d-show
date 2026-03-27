@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DShow.PosMobile.Pages.SyncCenterPage"
+             Title="Synchronisation">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="16">
+        <HorizontalStackLayout Spacing="12">
+            <Button Text="Retour" Clicked="OnBackClicked" />
+            <Label Text="Centre de synchronisation" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+
+        <CollectionView x:Name="QueueView" Grid.Row="1" Margin="0,16,0,16">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="12" Margin="0,0,0,8" BorderColor="#cbd5e1" CornerRadius="12">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Module}" FontAttributes="Bold" />
+                            <Label Text="{Binding RelativeUrl}" TextColor="#64748b" />
+                            <Label Text="{Binding Status}" TextColor="#0f766e" />
+                            <Label Text="{Binding LastError}" TextColor="#dc2626" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="8">
+            <Button Text="Relancer la synchronisation" Clicked="OnReplayClicked" BackgroundColor="#0f766e" TextColor="White" />
+            <Label x:Name="SyncStatusLabel" TextColor="#64748b" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DShow.PosMobile.Pages.RestaurantPosPage"
+             Title="Restaurant POS">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,*" Padding="16">
+        <HorizontalStackLayout Spacing="12">
+            <Button Text="Retour" Clicked="OnBackClicked" />
+            <Label Text="Restaurant POS" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+
+        <Picker x:Name="TablePicker" Grid.Row="1" Title="Choisir une table" Margin="0,12,0,0" />
+        <Picker x:Name="CategoryPicker" Grid.Row="2" Title="Filtrer par categorie" Margin="0,12,0,0" SelectedIndexChanged="OnCategoryChanged" />
+
+        <CollectionView x:Name="MenuItemsView" Grid.Row="3" Margin="0,12,0,12" SelectionChanged="OnMenuItemSelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="12" Margin="0,0,0,8" BorderColor="#cbd5e1" CornerRadius="12">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Nom}" FontAttributes="Bold" />
+                            <Label Text="{Binding Description}" TextColor="#64748b" />
+                            <Label Text="{Binding Prix}" TextColor="#0f766e" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Entry x:Name="KitchenNoteEntry" Grid.Row="4" Placeholder="Note cuisine (optionnel)" />
+
+        <Grid Grid.Row="5" ColumnDefinitions="*,*" Margin="0,12,0,0">
+            <VerticalStackLayout Grid.Column="0" Spacing="8">
+                <Label Text="Panier" FontAttributes="Bold" />
+                <CollectionView x:Name="CartView" SelectionChanged="OnCartItemSelected">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="12" Margin="0,0,0,8" BorderColor="#e2e8f0" CornerRadius="12">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Libelle}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Quantite}" />
+                                    <Label Text="{Binding Total}" TextColor="#0f766e" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Label x:Name="RestaurantTotalLabel" FontAttributes="Bold" Text="Total: 0" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1" Spacing="10" Padding="12,0,0,0">
+                <Button Text="Encaisser cash" Clicked="OnCashClicked" BackgroundColor="#0f766e" TextColor="White" />
+                <Button Text="Encaisser carte" Clicked="OnCardClicked" />
+                <Button Text="Mobile money" Clicked="OnMobileClicked" />
+                <Label x:Name="RestaurantStatusLabel" TextColor="#64748b" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

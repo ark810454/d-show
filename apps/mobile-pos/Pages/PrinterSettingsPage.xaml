@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DShow.PosMobile.Pages.PrinterSettingsPage"
+             Title="Impression Bluetooth">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="16">
+        <HorizontalStackLayout Spacing="12">
+            <Button Text="Retour" Clicked="OnBackClicked" />
+            <Label Text="Imprimante Bluetooth" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+
+        <CollectionView x:Name="DevicesView" Grid.Row="1" Margin="0,16,0,16" SelectionChanged="OnDeviceSelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="12" Margin="0,0,0,8" BorderColor="#cbd5e1" CornerRadius="12">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Name}" FontAttributes="Bold" />
+                            <Label Text="{Binding Id}" FontSize="12" TextColor="#64748b" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="8">
+            <Label x:Name="SelectedPrinterLabel" TextColor="#64748b" />
+            <Button Text="Autoriser le Bluetooth" Clicked="OnRequestBluetoothClicked" />
+            <Button Text="Rafraichir les imprimantes" Clicked="OnRefreshClicked" />
+            <Button Text="Imprimer un ticket test" Clicked="OnTestPrintClicked" BackgroundColor="#0f766e" TextColor="White" />
+            <Label x:Name="PrinterStatusLabel" TextColor="#64748b" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

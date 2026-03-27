@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DShow.PosMobile.Pages.LoginPage"
+             Title="Connexion">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#f6efe4" Offset="0.0" />
+                <GradientStop Color="#fffaf2" Offset="0.45" />
+                <GradientStop Color="#eef6f5" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid RowDefinitions="*,Auto">
+            <ScrollView>
+                <VerticalStackLayout Padding="24,34,24,24" Spacing="18">
+                    <Border StrokeThickness="0"
+                            StrokeShape="RoundRectangle 32"
+                            BackgroundColor="#0f172a"
+                            Padding="22">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                            <Border WidthRequest="64"
+                                    HeightRequest="64"
+                                    StrokeThickness="0"
+                                    BackgroundColor="#0f766e"
+                                    StrokeShape="RoundRectangle 22">
+                                <Label Text="DS"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                <Label Text="D_Show POS Mobile"
+                                       FontSize="26"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                                <Label Text="Encaissement mobile pour restaurant, terrasse et boutique"
+                                       TextColor="#cbd5e1"
+                                       FontSize="13" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <Border Stroke="#d6e4df"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 30"
+                            BackgroundColor="White"
+                            Padding="22">
+                        <VerticalStackLayout Spacing="18">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Connexion terminal"
+                                       FontSize="30"
+                                       FontAttributes="Bold"
+                                       TextColor="#0f172a" />
+                                <Label Text="Connectez le caissier ou le responsable du point de vente."
+                                       TextColor="#64748b"
+                                       FontSize="14" />
+                            </VerticalStackLayout>
+
+                            <Border Stroke="#e2e8f0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 24"
+                                    BackgroundColor="#f8fafc"
+                                    Padding="16,14">
+                                <VerticalStackLayout Spacing="10">
+                                    <Grid ColumnDefinitions="*,Auto"
+                                          ColumnSpacing="12">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label Text="Configuration reseau"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#0f766e" />
+                                            <Label Text="Option avancee. Normalement, rien a modifier."
+                                                   TextColor="#64748b"
+                                                   FontSize="12" />
+                                        </VerticalStackLayout>
+                                        <Button x:Name="ApiToggleButton"
+                                                Grid.Column="1"
+                                                Text="Afficher"
+                                                Clicked="OnToggleApiConfigClicked"
+                                                BackgroundColor="#e2e8f0"
+                                                TextColor="#0f172a"
+                                                FontSize="13"
+                                                HeightRequest="40"
+                                                CornerRadius="18" />
+                                    </Grid>
+
+                                    <VerticalStackLayout x:Name="ApiConfigPanel"
+                                                         IsVisible="False"
+                                                         Spacing="6">
+                                        <Label Text="URL API"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="#0f766e" />
+                                        <Entry x:Name="ApiUrlEntry"
+                                               Placeholder="http://192.168.x.x:4000/api"
+                                               Keyboard="Url"
+                                               ClearButtonVisibility="WhileEditing"
+                                               FontSize="16"
+                                               TextColor="#0f172a" />
+                                        <Label x:Name="ApiHintLabel"
+                                               TextColor="#64748b"
+                                               FontSize="12" />
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <Border Stroke="#e2e8f0"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 24"
+                                        BackgroundColor="#ffffff"
+                                        Padding="16,14">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="Adresse email"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="#334155" />
+                                        <Entry x:Name="EmailEntry"
+                                               Placeholder="exemple@dshow.app"
+                                               Keyboard="Email"
+                                               ClearButtonVisibility="WhileEditing"
+                                               FontSize="16"
+                                               TextColor="#0f172a" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Border Grid.Column="1"
+                                        Stroke="#e2e8f0"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 24"
+                                        BackgroundColor="#ffffff"
+                                        Padding="16,14">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label Text="Mot de passe"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="#334155" />
+                                        <Entry x:Name="PasswordEntry"
+                                               Placeholder="Mot de passe"
+                                               IsPassword="True"
+                                               FontSize="16"
+                                               TextColor="#0f172a" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+
+                            <Border Stroke="#fde68a"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 22"
+                                    BackgroundColor="#fffbeb"
+                                    Padding="14,12">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Conseil"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="#b45309" />
+                                    <Label x:Name="AdviceLabel"
+                                           Text="Le terminal POS doit etre sur le meme reseau Wi-Fi que le serveur D_Show."
+                                           FontSize="12"
+                                           TextColor="#92400e" />
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <Border x:Name="ErrorCard"
+                                    IsVisible="False"
+                                    Stroke="#fecaca"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 22"
+                                    BackgroundColor="#fef2f2"
+                                    Padding="14,12">
+                                <Label x:Name="ErrorLabel"
+                                       TextColor="#b91c1c"
+                                       FontSize="13" />
+                            </Border>
+
+                            <Button x:Name="LoginButton"
+                                    Text="Se connecter au terminal"
+                                    Clicked="OnLoginClicked"
+                                    BackgroundColor="#0f766e"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    CornerRadius="22"
+                                    HeightRequest="56" />
+
+                            <HorizontalStackLayout Spacing="12"
+                                                   VerticalOptions="Center">
+                                <ActivityIndicator x:Name="LoginLoader"
+                                                   IsVisible="False"
+                                                   IsRunning="False"
+                                                   Color="#0f766e" />
+                                <Label x:Name="StatusLabel"
+                                       Text="Pret pour la connexion."
+                                       TextColor="#64748b"
+                                       FontSize="12"
+                                       VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <Label Grid.Row="1"
+                   Margin="0,0,0,16"
+                   HorizontalOptions="Center"
+                   Text="D_Show Android POS - Build mobile de demonstration"
+                   TextColor="#94a3b8"
+                   FontSize="11" />
+        </Grid>
+    </Grid>
+</ContentPage>

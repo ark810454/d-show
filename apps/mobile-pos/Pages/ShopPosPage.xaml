@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DShow.PosMobile.Pages.ShopPosPage"
+             Title="Shop POS">
+    <Grid RowDefinitions="Auto,Auto,*,*" Padding="16">
+        <HorizontalStackLayout Spacing="12">
+            <Button Text="Retour" Clicked="OnBackClicked" />
+            <Label Text="Boutique POS" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+
+        <SearchBar x:Name="ProductSearchBar" Grid.Row="1" Placeholder="Rechercher un produit ou code" SearchButtonPressed="OnSearchPressed" Margin="0,12,0,0" />
+
+        <CollectionView x:Name="ProductsView" Grid.Row="2" Margin="0,12,0,12" SelectionChanged="OnProductSelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="12" Margin="0,0,0,8" BorderColor="#cbd5e1" CornerRadius="12">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Nom}" FontAttributes="Bold" />
+                            <Label Text="{Binding Sku}" TextColor="#64748b" />
+                            <Label Text="{Binding PrixVente}" TextColor="#0f766e" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid Grid.Row="3" ColumnDefinitions="*,*" Margin="0,12,0,0">
+            <VerticalStackLayout Grid.Column="0" Spacing="8">
+                <Label Text="Panier boutique" FontAttributes="Bold" />
+                <CollectionView x:Name="ShopCartView" SelectionChanged="OnCartItemSelected">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="12" Margin="0,0,0,8" BorderColor="#e2e8f0" CornerRadius="12">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Libelle}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Quantite}" />
+                                    <Label Text="{Binding Total}" TextColor="#0f766e" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Label x:Name="ShopTotalLabel" FontAttributes="Bold" Text="Total: 0" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1" Spacing="10" Padding="12,0,0,0">
+                <Button Text="Cash" Clicked="OnCashClicked" BackgroundColor="#0f766e" TextColor="White" />
+                <Button Text="Carte" Clicked="OnCardClicked" />
+                <Button Text="Mobile Money" Clicked="OnMobileClicked" />
+                <Label x:Name="ShopStatusLabel" TextColor="#64748b" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>
