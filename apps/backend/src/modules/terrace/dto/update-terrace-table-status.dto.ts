@@ -1,7 +1,8 @@
-import { ResourceStatus } from "@prisma/client";
-import { IsEnum } from "class-validator";
+import { IsIn } from "class-validator";
+
+const TERRACE_RESOURCE_STATUSES = ["LIBRE", "OCCUPEE", "RESERVEE"] as const;
 
 export class UpdateTerraceTableStatusDto {
-  @IsEnum(ResourceStatus)
-  statut!: ResourceStatus;
+  @IsIn(TERRACE_RESOURCE_STATUSES)
+  statut!: (typeof TERRACE_RESOURCE_STATUSES)[number];
 }

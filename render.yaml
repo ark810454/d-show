@@ -5,7 +5,7 @@ services:
     plan: starter
     region: frankfurt
     image:
-      url: docker.io/mysql:8.0
+      url: docker.io/library/mysql:8.0
     disk:
       name: mysql-data
       mountPath: /var/lib/mysql

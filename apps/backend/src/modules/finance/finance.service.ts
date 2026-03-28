@@ -1,9 +1,24 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { ActivityType, FinancialTransactionType, PaymentStatus } from "@prisma/client";
 import { PrismaService } from "../../config/prisma.service";
 import { CreateExpenseCategoryDto } from "./dto/create-expense-category.dto";
 import { CreateExpenseDto } from "./dto/create-expense.dto";
 import { FinanceReportQueryDto } from "./dto/finance-report-query.dto";
+
+const ACTIVITY_TYPE = {
+  RESTAURANT: "RESTAURANT",
+  TERRASSE: "TERRASSE",
+  BOITE_NUIT: "BOITE_NUIT",
+  SHOP: "SHOP",
+} as const;
+
+const FINANCIAL_TRANSACTION_TYPE = {
+  DEPENSE: "DEPENSE",
+  VENTE: "VENTE",
+} as const;
+
+const PAYMENT_STATUS = {
+  PAYE: "PAYE",
+} as const;
 
 @Injectable()
 export class FinanceService {
@@ -62,8 +77,8 @@ export class FinanceService {
         financeAccountId: dto.financeAccountId,
         userId: dto.userId,
         reference: `DEP-${Date.now()}`,
-        typeTransaction: FinancialTransactionType.DEPENSE,
-        statutPaiement: PaymentStatus.PAYE,
+        typeTransaction: FINANCIAL_TRANSACTION_TYPE.DEPENSE,
+        statutPaiement: PAYMENT_STATUS.PAYE,
         montant: dto.montant,
         description: dto.description,
         justificatif: dto.justificatif,
@@ -81,7 +96,7 @@ export class FinanceService {
     return this.prisma.financialTransaction.findMany({
       where: {
         companyId,
-        typeTransaction: FinancialTransactionType.DEPENSE,
+        typeTransaction: FINANCIAL_TRANSACTION_TYPE.DEPENSE,
         deletedAt: null,
         ...(activityId ? { activityId } : {}),
         ...(from || to
@@ -120,7 +135,7 @@ export class FinanceService {
         where: {
           companyId,
           deletedAt: null,
-          typeTransaction: FinancialTransactionType.DEPENSE,
+          typeTransaction: FINANCIAL_TRANSACTION_TYPE.DEPENSE,
           dateTransaction: { gte: from, lte: to },
           ...(activityId ? { activityId } : {}),
         },
@@ -135,7 +150,7 @@ export class FinanceService {
         where: {
           companyId,
           createdAt: { gte: from, lte: to },
-          statut: PaymentStatus.PAYE,
+          statut: PAYMENT_STATUS.PAYE,
           ...(activityId ? { activityId } : {}),
         },
         select: { id: true, activityId: true, montant: true, createdAt: true, processedByUserId: true },
@@ -144,7 +159,7 @@ export class FinanceService {
         where: {
           companyId,
           createdAt: { gte: from, lte: to },
-          statut: PaymentStatus.PAYE,
+          statut: PAYMENT_STATUS.PAYE,
           ...(activityId ? { activityId } : {}),
         },
         select: { id: true, activityId: true, montant: true, createdAt: true, processedByUserId: true },
@@ -171,7 +186,7 @@ export class FinanceService {
         where: {
           companyId,
           createdAt: { gte: from, lte: to },
-          statut: PaymentStatus.PAYE,
+          statut: PAYMENT_STATUS.PAYE,
           ...(activityId ? { activityId } : {}),
         },
         select: { id: true, activityId: true, montant: true, createdAt: true, processedByUserId: true },
@@ -181,7 +196,7 @@ export class FinanceService {
           companyId,
           deletedAt: null,
           createdAt: { gte: from, lte: to },
-          statutPaiement: PaymentStatus.PAYE,
+          statutPaiement: PAYMENT_STATUS.PAYE,
           ...(activityId ? { activityId } : {}),
         },
         select: { id: true, activityId: true, totalTtc: true, createdAt: true, sellerId: true },
@@ -190,7 +205,7 @@ export class FinanceService {
         where: {
           companyId,
           deletedAt: null,
-          typeTransaction: FinancialTransactionType.VENTE,
+          typeTransaction: FINANCIAL_TRANSACTION_TYPE.VENTE,
           dateTransaction: { gte: from, lte: to },
           ...(activityId ? { activityId } : {}),
           restaurantOrderId: null,
@@ -201,11 +216,11 @@ export class FinanceService {
       }),
     ]);
 
-    const coveredTypes = new Set<ActivityType>([
-      ActivityType.RESTAURANT,
-      ActivityType.TERRASSE,
-      ActivityType.BOITE_NUIT,
-      ActivityType.SHOP,
+    const coveredTypes = new Set<string>([
+      ACTIVITY_TYPE.RESTAURANT,
+      ACTIVITY_TYPE.TERRASSE,
+      ACTIVITY_TYPE.BOITE_NUIT,
+      ACTIVITY_TYPE.SHOP,
     ]);
 
     const coveredActivityIds = new Set(

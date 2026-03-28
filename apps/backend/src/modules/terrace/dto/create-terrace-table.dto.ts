@@ -1,5 +1,6 @@
-import { ResourceStatus } from "@prisma/client";
-import { IsEnum, IsInt, IsOptional, IsString, Min } from "class-validator";
+import { IsIn, IsInt, IsOptional, IsString, Min } from "class-validator";
+
+const TERRACE_RESOURCE_STATUSES = ["LIBRE", "OCCUPEE", "RESERVEE"] as const;
 
 export class CreateTerraceTableDto {
   @IsString()
@@ -24,7 +25,6 @@ export class CreateTerraceTableDto {
   capacite!: number;
 
   @IsOptional()
-  @IsEnum(ResourceStatus)
-  statut?: ResourceStatus;
+  @IsIn(TERRACE_RESOURCE_STATUSES)
+  statut?: (typeof TERRACE_RESOURCE_STATUSES)[number];
 }
-

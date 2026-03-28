@@ -1,5 +1,6 @@
-import { ShopProductStatus } from "@prisma/client";
-import { IsEnum, IsOptional, IsString } from "class-validator";
+import { IsIn, IsOptional, IsString } from "class-validator";
+
+const SHOP_PRODUCT_STATUSES = ["ACTIVE", "INACTIVE"] as const;
 
 export class UpdateShopProductDto {
   @IsOptional()
@@ -35,6 +36,6 @@ export class UpdateShopProductDto {
   stockMinimum?: number;
 
   @IsOptional()
-  @IsEnum(ShopProductStatus)
-  statut?: ShopProductStatus;
+  @IsIn(SHOP_PRODUCT_STATUSES)
+  statut?: (typeof SHOP_PRODUCT_STATUSES)[number];
 }

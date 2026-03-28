@@ -1,5 +1,6 @@
-import { ResourceStatus } from "@prisma/client";
-import { IsEnum, IsInt, IsOptional, IsString, Min } from "class-validator";
+import { IsIn, IsInt, IsOptional, IsString, Min } from "class-validator";
+
+const RESTAURANT_RESOURCE_STATUSES = ["LIBRE", "OCCUPEE", "RESERVEE", "EN_NETTOYAGE"] as const;
 
 export class CreateRestaurantTableDto {
   @IsString()
@@ -20,7 +21,6 @@ export class CreateRestaurantTableDto {
   capacite!: number;
 
   @IsOptional()
-  @IsEnum(ResourceStatus)
-  statut?: ResourceStatus;
+  @IsIn(RESTAURANT_RESOURCE_STATUSES)
+  statut?: (typeof RESTAURANT_RESOURCE_STATUSES)[number];
 }
-

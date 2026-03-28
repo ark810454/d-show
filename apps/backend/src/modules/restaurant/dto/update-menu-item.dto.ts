@@ -1,14 +1,15 @@
-import { MenuItemStatus } from "@prisma/client";
 import { Type } from "class-transformer";
 import {
   IsArray,
-  IsEnum,
+  IsIn,
   IsNumber,
   IsOptional,
   IsString,
   Min,
   ValidateNested,
 } from "class-validator";
+
+const MENU_ITEM_STATUSES = ["DISPONIBLE", "INDISPONIBLE"] as const;
 
 class UpdateMenuItemOptionDto {
   @IsString()
@@ -44,8 +45,8 @@ export class UpdateMenuItemDto {
   image?: string;
 
   @IsOptional()
-  @IsEnum(MenuItemStatus)
-  statut?: MenuItemStatus;
+  @IsIn(MENU_ITEM_STATUSES)
+  statut?: (typeof MENU_ITEM_STATUSES)[number];
 
   @IsOptional()
   @IsArray()

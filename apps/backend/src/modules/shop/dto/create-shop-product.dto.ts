@@ -1,6 +1,7 @@
 import { Type } from "class-transformer";
-import { ShopProductStatus } from "@prisma/client";
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsIn, IsNumber, IsOptional, IsString } from "class-validator";
+
+const SHOP_PRODUCT_STATUSES = ["ACTIVE", "INACTIVE"] as const;
 
 export class CreateShopProductDto {
   @IsString()
@@ -50,6 +51,6 @@ export class CreateShopProductDto {
   stockMinimum!: number;
 
   @IsOptional()
-  @IsEnum(ShopProductStatus)
-  statut?: ShopProductStatus;
+  @IsIn(SHOP_PRODUCT_STATUSES)
+  statut?: (typeof SHOP_PRODUCT_STATUSES)[number];
 }

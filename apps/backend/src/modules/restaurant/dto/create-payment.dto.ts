@@ -1,5 +1,6 @@
-import { PaymentMethod } from "@prisma/client";
-import { IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsIn, IsNumber, IsOptional, IsString, Min } from "class-validator";
+
+const PAYMENT_METHODS = ["CASH", "CARTE", "MOBILE_MONEY", "VIREMENT"] as const;
 
 export class CreateRestaurantPaymentDto {
   @IsString()
@@ -19,11 +20,10 @@ export class CreateRestaurantPaymentDto {
   @Min(0)
   montant!: number;
 
-  @IsEnum(PaymentMethod)
-  modePaiement!: PaymentMethod;
+  @IsIn(PAYMENT_METHODS)
+  modePaiement!: (typeof PAYMENT_METHODS)[number];
 
   @IsOptional()
   @IsString()
   note?: string;
 }
-

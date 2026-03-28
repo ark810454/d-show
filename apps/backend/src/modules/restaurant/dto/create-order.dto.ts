@@ -1,13 +1,15 @@
-import { PaymentMethod } from "@prisma/client";
 import { Type } from "class-transformer";
 import {
   IsArray,
   IsNumber,
+  IsIn,
   IsOptional,
   IsString,
   Min,
   ValidateNested,
 } from "class-validator";
+
+const PAYMENT_METHODS = ["CASH", "CARTE", "MOBILE_MONEY", "VIREMENT"] as const;
 
 class CreateOrderItemDto {
   @IsOptional()
@@ -56,11 +58,11 @@ export class CreateRestaurantOrderDto {
   notesCuisine?: string;
 
   @IsOptional()
-  modePaiementInitial?: PaymentMethod;
+  @IsIn(PAYMENT_METHODS)
+  modePaiementInitial?: (typeof PAYMENT_METHODS)[number];
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
   items!: CreateOrderItemDto[];
 }
-

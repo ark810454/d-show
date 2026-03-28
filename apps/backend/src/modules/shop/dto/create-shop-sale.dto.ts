@@ -1,6 +1,7 @@
-import { PaymentMethod } from "@prisma/client";
 import { Type } from "class-transformer";
-import { IsArray, IsEnum, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsIn, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
+
+const PAYMENT_METHODS = ["CASH", "CARTE", "MOBILE_MONEY", "VIREMENT"] as const;
 
 class CreateShopSaleItemDto {
   @IsOptional()
@@ -42,8 +43,8 @@ export class CreateShopSaleDto {
   @IsNumber()
   taxeMontant!: number;
 
-  @IsEnum(PaymentMethod)
-  modePaiement!: PaymentMethod;
+  @IsIn(PAYMENT_METHODS)
+  modePaiement!: (typeof PAYMENT_METHODS)[number];
 
   @IsOptional()
   @IsString()

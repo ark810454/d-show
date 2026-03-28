@@ -1,8 +1,8 @@
-import { ResourceStatus } from "@prisma/client";
-import { IsEnum } from "class-validator";
+import { IsIn } from "class-validator";
+
+const RESTAURANT_RESOURCE_STATUSES = ["LIBRE", "OCCUPEE", "RESERVEE", "EN_NETTOYAGE"] as const;
 
 export class UpdateRestaurantTableStatusDto {
-  @IsEnum(ResourceStatus)
-  statut!: ResourceStatus;
+  @IsIn(RESTAURANT_RESOURCE_STATUSES)
+  statut!: (typeof RESTAURANT_RESOURCE_STATUSES)[number];
 }
-
